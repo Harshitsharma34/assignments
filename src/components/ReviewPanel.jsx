@@ -39,7 +39,7 @@ export default function ReviewPanel({ stateId, onState, onUpi, onReplay, reduced
         <Ctl onClick={() => onReplay('short')} icon={RotateCcw}>Replay repeat-visit intro</Ctl>
         <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded-xl border border-line px-3 text-[14px]">
           Reduced motion
-          <input type="checkbox" checked={reduced} onChange={(e) => onReduced(e.target.checked)} className="h-4 w-4 accent-[#8A6114]" />
+          <input type="checkbox" checked={reduced} onChange={(e) => onReduced(e.target.checked)} className="h-4 w-4 accent-[#E2B65C]" />
         </label>
       </div>
 
@@ -57,7 +57,7 @@ export default function ReviewPanel({ stateId, onState, onUpi, onReplay, reduced
           step={0.01}
           value={scrub ?? T.end}
           onChange={(e) => onScrub(Number(e.target.value))}
-          className="mt-2 w-full accent-[#8A6114]"
+          className="mt-2 w-full accent-[#E2B65C]"
         />
         <div className="mt-2 grid grid-cols-3 gap-2">
           <Ctl onClick={() => onScrub(timeAtAngle(45))}>45°</Ctl>

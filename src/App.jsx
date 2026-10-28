@@ -28,8 +28,6 @@ export default function App() {
   const [route, setRoute] = useState('wallet')
   const [toast, setToast] = useState(null)
   const scroller = useRef(null)
-  const [bandHeight, setBandHeight] = useState(400)
-  const [pastBand, setPastBand] = useState(false)
 
   const notify = useCallback((t) => setToast({ id: Date.now(), ...t }), [])
 
@@ -73,8 +71,8 @@ export default function App() {
   return (
     <MotionConfig reducedMotion={reduced ? 'always' : 'never'}>
       <div className="flex min-h-full flex-col items-center gap-6 py-0 sm:py-8 lg:flex-row lg:items-start lg:justify-center lg:gap-10">
-        <div className="relative h-[100dvh] w-full overflow-hidden bg-page sm:h-[844px] sm:w-[390px] sm:rounded-[48px] sm:border sm:border-line sm:shadow-[0_30px_80px_rgba(21,22,26,0.16)]">
-          <StatusBar onDark={route === 'wallet' && !pastBand} />
+        <div className="relative h-[100dvh] w-full overflow-hidden bg-page sm:h-[844px] sm:w-[390px] sm:rounded-[48px] sm:border sm:border-line sm:shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
+          <StatusBar />
 
           <motion.div
             ref={scroller}
@@ -83,15 +81,12 @@ export default function App() {
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             aria-hidden={route !== 'wallet'}
             inert={route !== 'wallet' ? '' : undefined}
-            onScroll={(e) => setPastBand(e.currentTarget.scrollTop > bandHeight - 44)}
           >
             <IntroTimeline.Provider value={timeline}>
               <Wallet
                 key={intro.run}
                 wallet={wallet}
                 intro={intro}
-                introDone={introDone}
-                onBandHeight={setBandHeight}
                 paused={route !== 'wallet'}
                 idleMotion={!reduced}
                 onIntroDone={() => { setIntroDone(true); writeSeen() }}
@@ -150,13 +145,9 @@ export default function App() {
   )
 }
 
-function StatusBar({ onDark }) {
-  // Light text over the black hero band; ink on porcelain once the band has scrolled away.
+function StatusBar() {
   return (
-    <div
-      className={`pointer-events-none absolute inset-x-0 top-0 z-40 flex h-11 items-center justify-between px-8 text-[15px] font-semibold transition-colors duration-200 ${onDark ? 'on-dark bg-transparent text-ink' : 'bg-page text-ink'}`}
-      aria-hidden="true"
-    >
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex h-11 items-center justify-between bg-gradient-to-b from-page via-page/85 to-transparent px-8 text-[15px] font-semibold text-ink" aria-hidden="true">
       <span>9:41</span>
       <span className="flex items-center gap-1.5">
         <span className="flex items-end gap-[2px]">{[5, 7, 9, 11].map((h) => <span key={h} className="w-[3px] rounded-sm bg-ink" style={{ height: h }} />)}</span>

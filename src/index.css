@@ -2,48 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Porcelain + black hero. Channels are "R G B" so Tailwind can apply alpha. */
-:root {
-  color-scheme: light;
-  --page: 242 243 241;      /* cool porcelain */
-  --surface: 255 255 255;
-  --sunken: 238 240 237;
-  --sunken-2: 228 231 227;
-  --strong: 205 209 204;
-  --line: 21 22 26;         /* hairlines are ink at 10% */
-  --ink: 21 22 26;
-  --ink-2: 84 88 95;        /* 7:1 on white */
-  --ink-3: 112 116 123;     /* 4.7:1 on white */
-  --accent: 138 97 20;      /* gold that passes 4.5:1 on white */
-  --gold: 201 154 62;
-  --gold-hi: 214 170 82;
-  --gain: 30 127 70;
-}
-
-/* The hero band and anything else that sits on black. */
-.on-dark {
+/* Black, gold and warm off-white. Channels are "R G B" so Tailwind can apply alpha.
+   `.on-dark` keeps the same values so components written for the hero band still work. */
+:root, .on-dark {
   color-scheme: dark;
-  --page: 0 0 0;
-  --surface: 20 20 20;
-  --sunken: 28 28 28;
-  --sunken-2: 38 38 38;
-  --strong: 58 58 58;
+  --page: 6 6 6;
+  --surface: 17 17 17;
+  --sunken: 24 24 23;
+  --sunken-2: 34 34 32;
+  --strong: 56 55 52;
   --line: 255 255 255;
-  --ink: 245 243 238;
-  --ink-2: 181 177 168;
-  --ink-3: 150 146 138;
-  --accent: 230 192 122;
+  --ink: 246 243 236;
+  --ink-2: 184 179 170;
+  --ink-3: 146 141 132;
+  --accent: 232 194 116;
   --gold: 226 182 92;
-  --gold-hi: 240 202 120;
-  --gain: 91 208 143;
+  --gold-hi: 242 205 126;
+  --gain: 94 214 140;
 }
 
 html, body, #root { height: 100%; }
-body { margin: 0; background: #E4E6E3; color: rgb(var(--ink)); font-family: "Noto Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: #0B0B0B; color: rgb(var(--ink)); font-family: "Noto Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 
 @layer utilities {
   .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
-  .label { @apply text-[11px] font-medium uppercase tracking-[0.16em] text-ink-3; }
+  .label { @apply text-[12px] font-medium uppercase tracking-[0.2em] text-ink-2; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { scrollbar-width: none; }
 }

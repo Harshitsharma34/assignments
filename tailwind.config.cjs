@@ -21,7 +21,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['"Noto Sans"', 'system-ui', 'sans-serif'],
-        display: ['"Noto Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Noto Serif Display"', 'Georgia', 'serif'],
       },
       borderRadius: { card: '20px' },
     },

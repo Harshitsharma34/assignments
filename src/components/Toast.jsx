@@ -7,7 +7,7 @@ export default function Toast({ toast }) {
         {toast && (
           <motion.div
             key={toast.id}
-            className="flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-[14px] text-surface shadow-[0_12px_32px_rgba(21,22,26,0.22)]"
+            className="flex items-center gap-2 rounded-full border border-line bg-sunken-2 px-4 py-2.5 text-[14px] text-ink shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
             initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, transition: { duration: 0.15 } }}

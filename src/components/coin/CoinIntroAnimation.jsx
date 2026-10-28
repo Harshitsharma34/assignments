@@ -42,7 +42,7 @@ function monotone(keys) {
 const TAU = Math.PI * 2
 const CAM_START = 1.3
 
-function Rig({ mode, skip, scrub, heroY, heroWidth, celebrateKey, idle, timeline, interaction, onDone }) {
+function Rig({ mode, skip, scrub, heroX, heroY, heroWidth, celebrateKey, idle, timeline, interaction, onDone }) {
   const { size, camera } = useThree()
   const rig = { group: useRef(), main: useRef(), left: useRef(), right: useRef() }
   const sweep = useRef()
@@ -61,8 +61,9 @@ function Rig({ mode, skip, scrub, heroY, heroWidth, celebrateKey, idle, timeline
   const hero = useMemo(() => {
     const z = (size.height * FORMATION.width) / (heroWidth * 2 * TAN)
     const pxPerUnit = size.height / (2 * z * TAN)
-    return { z, y: -(size.height / 2 - heroY) / pxPerUnit }
-  }, [size.height, heroWidth, heroY])
+    const x = heroX == null ? 0 : (heroX - size.width / 2) / pxPerUnit
+    return { z, x, y: -(size.height / 2 - heroY) / pxPerUnit }
+  }, [size.width, size.height, heroWidth, heroX, heroY])
   const heroRef = useRef(hero)
   heroRef.current = hero
 
@@ -150,7 +151,7 @@ function Rig({ mode, skip, scrub, heroY, heroWidth, celebrateKey, idle, timeline
 
     const h = heroRef.current
     const l0 = Math.log(CAM_START)
-    camera.position.set(0.4 * p.offset, lerp(0.3 * p.offset, h.y, p.pan), Math.exp(lerp(l0, Math.log(h.z), p.dolly)))
+    camera.position.set(lerp(0.4 * p.offset, -h.x, p.pan), lerp(0.3 * p.offset, h.y, p.pan), Math.exp(lerp(l0, Math.log(h.z), p.dolly)))
 
     // Resting motion: a slow float, never a spin.
     const time = state.clock.elapsedTime

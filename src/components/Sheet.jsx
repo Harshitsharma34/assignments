@@ -24,7 +24,7 @@ export default function Sheet({ open, onClose, title, children }) {
     <AnimatePresence>
       {open && (
         <motion.div className="absolute inset-0 z-50 flex items-end" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-          <button aria-label="Close" className="absolute inset-0 cursor-default bg-ink/35" onClick={onClose} tabIndex={-1} />
+          <button aria-label="Close" className="absolute inset-0 cursor-default bg-black/65" onClick={onClose} tabIndex={-1} />
           <motion.div
             ref={panel}
             role="dialog"
