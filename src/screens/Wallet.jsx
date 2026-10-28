@@ -9,9 +9,10 @@ import NextReward from './wallet/NextReward.jsx'
 import RatesExplainer from './wallet/RatesSheet.jsx'
 import Reveal from './wallet/Reveal.jsx'
 import SpendOptions from './wallet/SpendOptions.jsx'
+import HeroBand from './wallet/HeroBand.jsx'
 import WalletHero from './wallet/WalletHero.jsx'
 
-export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, notify, idleMotion }) {
+export default function Wallet({ wallet, intro, introDone, onIntroDone, onBandHeight, paused, navigate, notify, idleMotion }) {
   const { profile, state, balance, rows, monthEarned, monthSpent, dispatch } = wallet
   const [sheet, setSheet] = useState(null)
   const close = () => setSheet(null)
@@ -24,27 +25,29 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
   return (
     <div className="relative">
       <div className="relative pb-28">
-        <div className="h-11" aria-hidden="true" />
-        <Reveal i={i++}>
-          <header className="flex h-[52px] items-center justify-between px-3">
-            <button aria-label="Back" className="grid h-11 w-11 place-items-center rounded-full text-fg hover:bg-ink-850"><ArrowLeft size={22} /></button>
-            <h1 className="text-[16px] font-semibold text-fg">Scoins</h1>
-            <button aria-label="How Scoin rates work" onClick={() => setSheet({ type: 'rates' })} className="grid h-11 w-11 place-items-center rounded-full text-fg-2 hover:bg-ink-850 hover:text-fg"><Info size={20} /></button>
-          </header>
-        </Reveal>
+        <HeroBand introDone={introDone} onHeight={onBandHeight}>
+          <div className="h-11" aria-hidden="true" />
+          <Reveal i={i++}>
+            <header className="flex h-[52px] items-center justify-between px-3">
+              <button aria-label="Back" className="grid h-11 w-11 place-items-center rounded-full text-ink hover:bg-surface"><ArrowLeft size={22} /></button>
+              <h1 className="text-[16px] font-semibold text-ink">Scoins</h1>
+              <button aria-label="How Scoin rates work" onClick={() => setSheet({ type: 'rates' })} className="grid h-11 w-11 place-items-center rounded-full text-ink-2 hover:bg-surface hover:text-ink"><Info size={20} /></button>
+            </header>
+          </Reveal>
 
-        <WalletHero
-          index={i++}
-          isNew={isNew}
-          balance={balance}
-          savedRupees={savedRupees}
-          onRates={() => setSheet({ type: 'rates' })}
-          intro={intro}
-          celebrateKey={state.celebrateKey}
-          idle={idleMotion}
-          paused={paused}
-          onIntroDone={onIntroDone}
-        />
+          <WalletHero
+            index={i++}
+            isNew={isNew}
+            balance={balance}
+            savedRupees={savedRupees}
+            onRates={() => setSheet({ type: 'rates' })}
+            intro={intro}
+            celebrateKey={state.celebrateKey}
+            idle={idleMotion}
+            paused={paused}
+            onIntroDone={onIntroDone}
+          />
+        </HeroBand>
 
         {isNew ? (
           <>
@@ -53,12 +56,12 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
             </Reveal>
             <Reveal i={i++} className="mt-8"><OtherWays onOpen={() => navigate('earn')} /></Reveal>
             <Reveal i={i++} className="mt-8 px-5">
-              <button onClick={() => setSheet({ type: 'rates' })} className="flex w-full items-center gap-3 rounded-card border border-line p-4 text-left hover:bg-ink-850">
-                <span className="flex-1 text-[14px] leading-relaxed text-fg-2">
-                  <span className="block font-medium text-fg">What Scoins are worth</span>
+              <button onClick={() => setSheet({ type: 'rates' })} className="flex w-full items-center gap-3 rounded-card border border-line p-4 text-left hover:bg-surface">
+                <span className="flex-1 text-[14px] leading-relaxed text-ink-2">
+                  <span className="block font-medium text-ink">What Scoins are worth</span>
                   500 Scoins = ₹100 on SalarySe, or ₹50 in your bank
                 </span>
-                <ChevronRight size={18} aria-hidden="true" className="text-fg-3" />
+                <ChevronRight size={18} aria-hidden="true" className="text-ink-3" />
               </button>
             </Reveal>
           </>
@@ -71,7 +74,7 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
             )}
 
             {isEmpty && (
-              <Reveal i={i++} className="mt-6 px-6 text-center text-[14px] leading-relaxed text-fg-2">
+              <Reveal i={i++} className="mt-6 px-6 text-center text-[14px] leading-relaxed text-ink-2">
                 You used all {state.lifetime.spent.toLocaleString('en-IN')} Scoins on SalarySe and got their full {formatRupees(savedRupees)} value. Here's the quickest way to your next reward.
               </Reveal>
             )}
@@ -123,17 +126,17 @@ function OtherWays({ onOpen }) {
   ]
   return (
     <section aria-labelledby="other-ways" className="px-5">
-      <h2 id="other-ways" className="text-[17px] font-semibold text-fg">Other ways to earn</h2>
-      <ul className="mt-3 overflow-hidden rounded-card border border-line bg-ink-850">
+      <h2 id="other-ways" className="text-[17px] font-semibold text-ink">Other ways to earn</h2>
+      <ul className="mt-3 overflow-hidden rounded-card border border-line bg-surface">
         {ways.map(({ icon: Icon, title, sub }, i) => (
           <li key={title} className={i ? 'border-t border-line' : ''}>
-            <button onClick={onOpen} className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left hover:bg-ink-800">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink-700" aria-hidden="true"><Icon size={17} className="text-fg-2" /></span>
+            <button onClick={onOpen} className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left hover:bg-sunken">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-gold/55" aria-hidden="true"><Icon size={17} className="text-accent" /></span>
               <span className="flex-1">
-                <span className="block text-[15px] text-fg">{title}</span>
-                <span className="block text-[13px] text-fg-3">{sub}</span>
+                <span className="block text-[15px] text-ink">{title}</span>
+                <span className="block text-[13px] text-ink-3">{sub}</span>
               </span>
-              <ChevronRight size={16} aria-hidden="true" className="text-fg-3" />
+              <ChevronRight size={16} aria-hidden="true" className="text-ink-3" />
             </button>
           </li>
         ))}

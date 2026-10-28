@@ -1,15 +1,23 @@
-/** Design tokens for the Scoins prototype. Components use these names, never raw hex. */
+/** Design tokens for the Scoins prototype. Components use these names, never raw hex.
+ *  Values live in CSS variables (src/index.css) so a `.on-dark` scope can restyle a region,
+ *  such as the black hero band, without touching component code. */
+const v = (name) => `rgb(var(--${name}) / <alpha-value>)`
+
 module.exports = {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
       colors: {
-        ink: { 950: '#0B0B0C', 900: '#111113', 850: '#161618', 800: '#1C1C1F', 700: '#26262A', 600: '#34343A' },
-        line: 'rgba(255,255,255,0.08)',
-        fg: { DEFAULT: '#F4F1EA', 2: '#B4AFA5', 3: '#8E8A82' },
-        gold: { DEFAULT: '#E8B547', hi: '#F5CC6A', lo: '#A87D2A', ink: '#1A1306', wash: 'rgba(232,181,71,0.10)' },
-        gain: '#5BD08F',
-        danger: '#FF7A6B',
+        page: v('page'),
+        surface: v('surface'),
+        sunken: { DEFAULT: v('sunken'), 2: v('sunken-2') },
+        strong: v('strong'),
+        line: 'rgb(var(--line) / 0.1)',
+        ink: { DEFAULT: v('ink'), 2: v('ink-2'), 3: v('ink-3') },
+        accent: v('accent'),
+        gold: { DEFAULT: v('gold'), hi: v('gold-hi'), lo: '#A87D2A', ink: '#1A1306', wash: 'rgb(var(--gold) / 0.14)' },
+        gain: v('gain'),
+        danger: '#C8442F',
       },
       fontFamily: {
         sans: ['"Noto Sans"', 'system-ui', 'sans-serif'],
