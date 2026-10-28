@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion, useMotionValue } from 'framer-motion'
+import { IntroTimeline, START } from './components/coin/timeline.js'
 import ReviewPanel from './components/ReviewPanel.jsx'
 import ScoinGlyph from './components/ScoinGlyph.jsx'
 import Toast from './components/Toast.jsx'
@@ -22,7 +23,7 @@ export default function App() {
   const wallet = useWallet('active')
   const [reduced, setReduced] = useState(prefersReduced)
   const [intro, setIntro] = useState(() => ({ mode: prefersReduced() ? 'none' : readSeen() ? 'short' : 'full', skip: false, run: 0 }))
-  const [revealed, setRevealed] = useState(false)
+  const timeline = useMotionValue(START[intro.mode])
   const [introDone, setIntroDone] = useState(false)
   const [route, setRoute] = useState('wallet')
   const [toast, setToast] = useState(null)
@@ -50,9 +51,10 @@ export default function App() {
   const replay = (mode) => {
     setRoute('wallet')
     scroller.current?.scrollTo({ top: 0 })
-    setRevealed(false)
-    setIntroDone(false)
-    setIntro((i) => ({ mode: reduced ? 'none' : mode, skip: false, run: i.run + 1 }))
+    const next = reduced ? 'none' : mode
+    timeline.set(START[next])
+    setIntroDone(next === 'none')
+    setIntro((i) => ({ mode: next, skip: false, scrub: null, run: i.run + 1 }))
   }
 
   const setUserState = (id) => {
@@ -81,17 +83,18 @@ export default function App() {
             inert={route !== 'wallet' ? '' : undefined}
           >
             <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(120%_70%_at_50%_0%,rgba(232,181,71,0.10),transparent_70%)]" aria-hidden="true" />
-            <Wallet
-              key={intro.run}
-              wallet={wallet}
-              intro={intro}
-              revealed={revealed}
-              idleMotion={!reduced}
-              onIntroReveal={() => setRevealed(true)}
-              onIntroDone={() => { setIntroDone(true); writeSeen() }}
-              navigate={setRoute}
-              notify={notify}
-            />
+            <IntroTimeline.Provider value={timeline}>
+              <Wallet
+                key={intro.run}
+                wallet={wallet}
+                intro={intro}
+                paused={route !== 'wallet'}
+                idleMotion={!reduced}
+                onIntroDone={() => { setIntroDone(true); writeSeen() }}
+                navigate={setRoute}
+                notify={notify}
+              />
+            </IntroTimeline.Provider>
           </motion.div>
 
           <AnimatePresence>
@@ -132,6 +135,8 @@ export default function App() {
             onState={setUserState}
             onUpi={() => wallet.dispatch({ type: 'upi' })}
             onReplay={replay}
+            scrub={intro.scrub}
+            onScrub={(t) => setIntro((i) => ({ ...i, scrub: t }))}
             reduced={reduced}
             onReduced={onReduced}
           />

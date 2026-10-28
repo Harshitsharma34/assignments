@@ -1,30 +1,17 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { ArrowLeft, ChevronRight, House, Info, Receipt, Sparkles } from 'lucide-react'
-import CoinStage from '../components/CoinStage.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { formatRupees, inAppValue } from '../lib/scoins.js'
 import Actions from './wallet/Actions.jsx'
 import Activity, { TxDetail } from './wallet/Activity.jsx'
-import { BalanceHero, NewUserHero } from './wallet/BalanceHero.jsx'
 import CardRewards, { CardExplainer } from './wallet/CardRewards.jsx'
 import NextReward from './wallet/NextReward.jsx'
 import RatesExplainer from './wallet/RatesSheet.jsx'
+import Reveal from './wallet/Reveal.jsx'
 import SpendOptions from './wallet/SpendOptions.jsx'
+import WalletHero from './wallet/WalletHero.jsx'
 
-export const HERO = { top: 96, height: 120, coinWidth: 172 }
-const STAGE_HEIGHT = 844
-
-const reveal = {
-  hidden: { opacity: 0, y: 14 },
-  show: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.07, duration: 0.45, ease: [0.22, 1, 0.36, 1] } }),
-}
-
-function Block({ i, children, className = '' }) {
-  return <motion.div custom={i} variants={reveal} className={className}>{children}</motion.div>
-}
-
-export default function Wallet({ wallet, intro, onIntroReveal, onIntroDone, revealed, navigate, notify, idleMotion }) {
+export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, notify, idleMotion }) {
   const { profile, state, balance, rows, monthEarned, monthSpent, dispatch } = wallet
   const [sheet, setSheet] = useState(null)
   const close = () => setSheet(null)
@@ -36,41 +23,36 @@ export default function Wallet({ wallet, intro, onIntroReveal, onIntroDone, reve
 
   return (
     <div className="relative">
-      {/* 3D stage scrolls with the page so the coins stay pinned to the hero slot. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20" style={{ height: STAGE_HEIGHT }}>
-        <CoinStage
-          height={STAGE_HEIGHT}
-          mode={intro.mode}
-          skip={intro.skip}
-          heroY={HERO.top + HERO.height / 2}
-          heroWidth={HERO.coinWidth}
-          celebrateKey={state.celebrateKey}
-          idle={idleMotion}
-          onReveal={onIntroReveal}
-          onDone={onIntroDone}
-        />
-      </div>
-
-      <motion.div initial="hidden" animate={revealed ? 'show' : 'hidden'} className="relative pb-28">
+      <div className="relative pb-28">
         <div className="h-11" aria-hidden="true" />
-        <Block i={i++}>
+        <Reveal i={i++}>
           <header className="flex h-[52px] items-center justify-between px-3">
             <button aria-label="Back" className="grid h-11 w-11 place-items-center rounded-full text-fg hover:bg-ink-850"><ArrowLeft size={22} /></button>
             <h1 className="text-[16px] font-semibold text-fg">Scoins</h1>
             <button aria-label="How Scoin rates work" onClick={() => setSheet({ type: 'rates' })} className="grid h-11 w-11 place-items-center rounded-full text-fg-2 hover:bg-ink-850 hover:text-fg"><Info size={20} /></button>
           </header>
-        </Block>
+        </Reveal>
 
-        <div style={{ height: HERO.height }} aria-hidden="true" />
+        <WalletHero
+          index={i++}
+          isNew={isNew}
+          balance={balance}
+          savedRupees={savedRupees}
+          onRates={() => setSheet({ type: 'rates' })}
+          intro={intro}
+          celebrateKey={state.celebrateKey}
+          idle={idleMotion}
+          paused={paused}
+          onIntroDone={onIntroDone}
+        />
 
         {isNew ? (
           <>
-            <Block i={i++}><NewUserHero /></Block>
-            <Block i={i++} className="mt-7">
+            <Reveal i={i++} className="mt-7">
               <NextReward first upi={state.upi} onPay={() => dispatch({ type: 'upi' })} />
-            </Block>
-            <Block i={i++} className="mt-8"><OtherWays onOpen={() => navigate('earn')} /></Block>
-            <Block i={i++} className="mt-8 px-5">
+            </Reveal>
+            <Reveal i={i++} className="mt-8"><OtherWays onOpen={() => navigate('earn')} /></Reveal>
+            <Reveal i={i++} className="mt-8 px-5">
               <button onClick={() => setSheet({ type: 'rates' })} className="flex w-full items-center gap-3 rounded-card border border-line p-4 text-left hover:bg-ink-850">
                 <span className="flex-1 text-[14px] leading-relaxed text-fg-2">
                   <span className="block font-medium text-fg">What Scoins are worth</span>
@@ -78,49 +60,47 @@ export default function Wallet({ wallet, intro, onIntroReveal, onIntroDone, reve
                 </span>
                 <ChevronRight size={18} aria-hidden="true" className="text-fg-3" />
               </button>
-            </Block>
+            </Reveal>
           </>
         ) : (
           <>
-            <Block i={i++}><BalanceHero balance={balance} savedRupees={savedRupees} onRates={() => setSheet({ type: 'rates' })} /></Block>
-
             {!isEmpty && (
-              <Block i={i++} className="mt-6">
+              <Reveal i={i++} className="mt-6">
                 <Actions onSpend={() => navigate('spend')} onWithdraw={() => navigate('withdraw')} onEarn={() => navigate('earn')} />
-              </Block>
+              </Reveal>
             )}
 
             {isEmpty && (
-              <Block i={i++} className="mt-6 px-6 text-center text-[14px] leading-relaxed text-fg-2">
+              <Reveal i={i++} className="mt-6 px-6 text-center text-[14px] leading-relaxed text-fg-2">
                 You used all {state.lifetime.spent.toLocaleString('en-IN')} Scoins on SalarySe and got their full {formatRupees(savedRupees)} value. Here's the quickest way to your next reward.
-              </Block>
+              </Reveal>
             )}
 
             {profile.hasCard && (
-              <Block i={i++} className="mt-6"><CardRewards balance={balance} card={profile.card} onExplain={() => setSheet({ type: 'card' })} /></Block>
+              <Reveal i={i++} className="mt-6"><CardRewards balance={balance} card={profile.card} onExplain={() => setSheet({ type: 'card' })} /></Reveal>
             )}
 
-            <Block i={i++} className="mt-6">
+            <Reveal i={i++} className="mt-6">
               <NextReward
                 upi={state.upi}
                 onPay={() => dispatch({ type: 'upi' })}
                 showCardHint={!profile.hasCard}
                 onCardHint={() => notify({ text: 'Card benefits live in Earn (next build)' })}
               />
-            </Block>
+            </Reveal>
 
             {!isEmpty && (
-              <Block i={i++} className="mt-8">
+              <Reveal i={i++} className="mt-8">
                 <SpendOptions balance={balance} onSelect={() => navigate('spend')} onSeeAll={() => navigate('spend')} />
-              </Block>
+              </Reveal>
             )}
 
-            <Block i={i++} className="mt-8">
+            <Reveal i={i++} className="mt-8">
               <Activity rows={rows} pending={profile.pending} monthEarned={monthEarned} monthSpent={monthSpent} onOpen={(item) => setSheet({ type: 'tx', item })} />
-            </Block>
+            </Reveal>
           </>
         )}
-      </motion.div>
+      </div>
 
       <Sheet open={sheet?.type === 'rates'} onClose={close} title="What your Scoins are worth">
         <RatesExplainer balance={balance} />

@@ -60,9 +60,28 @@ Withdraw (Screen C) ─ amount → neutral comparison → confirm → receipt
 - **First redemption:** "Use your ₹300" → deal fully covered → Spend flow (Screen C).
 - **Check a transaction:** tap row → amount, ₹ at both rates, status, rule, balance after, reference.
 
-## 6. Build status
+## 6. The 3D coin and intro
 
-- [x] Screen A: Wallet, all four states, sheets, earn celebration, 3D intro
+Code lives in `src/components/coin/`:
+
+| Module | Role |
+|---|---|
+| `Scoin3D.jsx` | Real geometry: satin field, 72 faceted triangles, rounded polished rim, 120 square reeds on the edge, extruded and bevelled S. Built once, shared by all coins. |
+| `ScoinMaterial.js` | PBR gold finishes: sandblasted face (tiled grain bump, faint lathe-ring roughness), polished emblem and rim, darker reeded edge. |
+| `CoinGroup.jsx` | The reference composition: centre coin forward, two smaller coins behind, turned outward. |
+| `CoinIntroAnimation.jsx` | Canvas, studio light formers, shadow-casting key light, and the GSAP master timeline. |
+| `useCoinInteraction.js` | Drag/flick to spin (settles face-forward), tap to flip, hover tilt, Enter/Space. |
+| `timeline.js` | Phase times, shared with the DOM so wallet blocks fade in from the same playhead. |
+
+Timeline (one GSAP `timeline`, labelled): `closeup` 0s → `spin` 0.5s → `formation` 1.6s → `wallet` 2.3s → end 3.0s.
+The camera dolly is a single tween with a custom ease keyed in log-distance, so the pull-back reads as one move.
+Repeat visits seek to `wallet`; reduced motion jumps to the end and disables coin interaction.
+The review panel's scrubber seeks the same timeline (45° and 90° presets for checking depth and the edge).
+
+## 7. Build status
+
+- [x] Screen A: Wallet, all four states, sheets, earn celebration
+- [x] 3D coin rebuilt with real depth; GSAP intro timeline; interactive coins
 - [ ] Screen B: Earn
 - [ ] Screen C: Spend / Withdraw flows
 - [ ] Behaviour model write-up
