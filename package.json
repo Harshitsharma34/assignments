@@ -2,9 +2,10 @@
   "name": "assignments",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "build:preview": "vite build --mode preview"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,21 @@
   },
   "homepage": "https://github.com/Harshitsharma34/assignments#readme",
   "dependencies": {
-    "three": "^0.186.1"
-  }
+    "@react-three/drei": "^9.117.3",
+    "@react-three/fiber": "^8.17.10",
+    "framer-motion": "^11.11.17",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "vite": "^5.4.11",
+    "vite-plugin-singlefile": "^2.0.3"
+  },
+  "private": true
 }
