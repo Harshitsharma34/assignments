@@ -1,16 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
-import { ArrowLeft, Check, Loader2, Share2, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import AnimatedValue from '../components/AnimatedValue.jsx'
-import Confetti from '../components/Confetti.jsx'
 import ScoinGlyph from '../components/ScoinGlyph.jsx'
 import Sheet from '../components/Sheet.jsx'
 import SwipeToConfirm from '../components/SwipeToConfirm.jsx'
 import { bankValue, formatRupees, formatScoins, inAppValue } from '../lib/scoins.js'
+import { SuccessView } from './flow.jsx'
 import { STEP, TickSlider, snapScoins } from './wallet/ScoinCalculator.jsx'
 
 // Withdraw follows SalarySe's existing transfer flow: amount and UPI ID, swipe to transfer,
-// OTP, processing, then a success card. Added on top: the exact rupees at 10 Scoins = ₹1,
+// OTP, processing, then the success sheet. Added on top: the exact rupees at 10 Scoins = ₹1,
 // the in-app value shown as information, validation before the swipe unlocks, and a
 // reconciled balance afterwards.
 const PHONE = '+91 98•••••828' // illustrative
@@ -39,7 +38,6 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
   }
 
   if (step === 'processing') return <Processing rupees={receipt.rupees} to={receipt.to} />
-  if (step === 'success') return <Success receipt={receipt} onClose={onBack} notify={notify} />
 
   return (
     <div className="min-h-full pb-10">
@@ -121,6 +119,21 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
           </div>
         </div>
       )}
+
+      {/* Success: the earlier sheet design, with the gold badge, confetti and count-up. */}
+      <Sheet open={step === 'success'} onClose={onBack} title="Requested">
+        {receipt && (
+          <SuccessView
+            amount={receipt.rupees}
+            format={formatRupees}
+            suffix="on its way"
+            lines={[`To ${receipt.to}`, `${formatScoins(receipt.scoins)} Scoins withdrawn · ${formatScoins(receipt.left)} left`]}
+            onDone={onBack}
+          >
+            <p className="mx-auto mt-4 inline-block rounded-full bg-sunken px-3 py-1.5 text-[13px] text-ink-2">Status: processing (illustrative)</p>
+          </SuccessView>
+        )}
+      </Sheet>
 
       <Sheet open={step === 'otp'} onClose={() => setStep('form')} title="Enter OTP to confirm">
         <Otp
@@ -236,65 +249,6 @@ function Processing({ rupees, to }) {
         </div>
       </div>
       <p className="mt-4 text-center text-[13px] text-ink-3">Please don’t go back or close the app.</p>
-    </div>
-  )
-}
-
-function Success({ receipt, onClose, notify }) {
-  const badge = useRef(null)
-  const when = useMemo(
-    () => receipt.at.toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }),
-    [receipt.at],
-  )
-  const rise = (i) => ({ initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.4 + i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] } })
-  return (
-    <div className="min-h-full px-5 pb-8 pt-12">
-      <div className="flex items-center justify-between">
-        <button onClick={onClose} aria-label="Close" className="grid h-10 w-10 place-items-center rounded-full bg-sunken text-ink hover:bg-sunken-2"><X size={19} /></button>
-        <button onClick={() => notify?.({ text: 'Sharing opens outside this prototype' })} aria-label="Share receipt" className="grid h-10 w-10 place-items-center rounded-full bg-sunken text-ink hover:bg-sunken-2"><Share2 size={17} /></button>
-      </div>
-
-      {/* SalarySe's green success card, with the celebration on top. */}
-      <motion.section
-        initial={{ opacity: 0, y: 24, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-        className="relative mt-5 overflow-hidden rounded-[24px] bg-[linear-gradient(180deg,rgb(var(--success))_0%,#14583A_100%)] p-5 text-white"
-        role="status"
-      >
-        <Confetti originRef={badge} />
-        <div ref={badge} className="relative mx-auto mt-3 h-20 w-20">
-          {[0, 1].map((i) => (
-            <motion.span key={i} aria-hidden="true" className="absolute inset-0 rounded-full border-2 border-white/60"
-              initial={{ scale: 0.8, opacity: 0.7 }} animate={{ scale: 2, opacity: 0 }} transition={{ delay: 0.15 + i * 0.22, duration: 1.1, ease: 'easeOut' }} />
-          ))}
-          <motion.span aria-hidden="true" className="absolute inset-0 grid place-items-center rounded-full bg-[#22C55E] shadow-[0_0_36px_rgba(34,197,94,0.55)]"
-            initial={{ scale: 0, rotate: -25 }} animate={{ scale: [0, 1.18, 1], rotate: 0 }} transition={{ duration: 0.6, times: [0, 0.6, 1] }}>
-            <Check size={38} strokeWidth={3} />
-          </motion.span>
-        </div>
-        <motion.p {...rise(0)} className="mt-5 text-center text-[28px] font-semibold tnum">
-          <AnimatedValue value={receipt.rupees} from={0} format={formatRupees} duration={1.1} />
-        </motion.p>
-        <motion.p {...rise(1)} className="text-center text-[17px] font-semibold">transferred successfully</motion.p>
-
-        <motion.dl {...rise(2)} className="mt-6 space-y-3 border-t border-white/20 pt-4 text-[13px]">
-          <div><dt className="text-white/65">To</dt><dd className="font-semibold">{receipt.to}</dd></div>
-          <div className="flex justify-between gap-4">
-            <div><dt className="text-white/65">Scoins used</dt><dd className="tnum">{formatScoins(receipt.scoins)} at 10 = ₹1</dd></div>
-            <div className="text-right"><dt className="text-white/65">Balance left</dt><dd className="tnum">{formatScoins(receipt.left)} Scoins</dd></div>
-          </div>
-          <div className="flex justify-between gap-4">
-            <div><dt className="text-white/65">Transaction ID</dt><dd className="tnum">{receipt.ref}</dd></div>
-            <div className="text-right"><dt className="text-white/65">Date and time</dt><dd className="tnum">{when}</dd></div>
-          </div>
-        </motion.dl>
-      </motion.section>
-
-      <motion.button {...rise(3)} onClick={onClose} className="mt-6 h-12 w-full rounded-2xl bg-ink text-[15px] font-semibold text-page hover:bg-ink/90">
-        Back to wallet
-      </motion.button>
-      <p className="mt-3 text-center text-[11px] text-ink-3">Phone number, UPI handling and transaction ID are illustrative.</p>
     </div>
   )
 }

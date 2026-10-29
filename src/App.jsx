@@ -51,7 +51,7 @@ export default function App() {
     if (ev.type === 'redeemed') {
       notify({ icon: <ScoinGlyph size={16} />, text: `${formatRupees(ev.rupees)} saved · ${ev.scoins.toLocaleString('en-IN')} Scoins used` })
     } else if (ev.type === 'withdrawn') {
-      notify({ text: `${formatRupees(ev.rupees)} sent to your bank` })
+      notify({ text: `${formatRupees(ev.rupees)} withdrawal requested` })
     } else if (ev.type === 'reward') {
       notify({ icon: <ScoinGlyph size={16} />, text: `+${ev.scoins} Scoins added · ${formatRupees(inAppValue(ev.scoins))} to spend` })
       scroller.current?.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })
