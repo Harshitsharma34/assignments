@@ -112,7 +112,9 @@ function Review({ deal, balance, selected, dispatch, failNext, onFailUsed, onDon
   if (flow.status === 'success') {
     return (
       <SuccessView
-        title={`${formatRupees(inAppValue(cost))} saved`}
+        amount={inAppValue(cost)}
+        format={formatRupees}
+        suffix="saved"
         lines={[`${formatScoins(cost)} Scoins used · ${formatScoins(balance)} left`]}
         onDone={onDone}
       >

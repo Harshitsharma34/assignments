@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
-import { AlertCircle, ArrowLeft, Check, Loader2 } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { AlertCircle, ArrowLeft, Loader2 } from 'lucide-react'
+import AnimatedValue from '../components/AnimatedValue.jsx'
+import Confetti from '../components/Confetti.jsx'
 
 // review → loading → success | error. The commit runs only on success, so a failure
 // never touches the balance.
@@ -63,22 +65,63 @@ export function PrimaryButton({ children, loading, disabled, tone = 'gold', ...p
   )
 }
 
-export function SuccessView({ title, lines, children, onDone }) {
+// The success moment: the badge springs in, the tick draws itself, rings ripple out, a light
+// sweeps across once, the amount counts up and confetti bursts from the badge.
+export function SuccessView({ amount, format, suffix, lines, children, onDone }) {
+  const badge = useRef(null)
+  const reduce = useReducedMotion()
+  useEffect(() => {
+    if (!reduce) navigator.vibrate?.([18, 40, 28])
+  }, [reduce])
+  const rise = (i) => ({ initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.45 + i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] } })
+
   return (
     <div className="pb-2 text-center" role="status">
-      <motion.span
-        className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gold text-gold-ink"
-        initial={{ scale: 0.6, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 20 }}
-        aria-hidden="true"
-      >
-        <Check size={30} strokeWidth={2.5} />
-      </motion.span>
-      <p className="mt-4 text-[22px] font-semibold text-ink tnum">{title}</p>
-      {lines.map((l) => <p key={l} className="mt-1 text-[14px] text-ink-2 tnum">{l}</p>)}
-      {children}
-      <div className="mt-6"><PrimaryButton tone="light" onClick={onDone}>Done</PrimaryButton></div>
+      <Confetti originRef={badge} />
+      <div ref={badge} className="relative mx-auto h-20 w-20">
+        {[0, 1].map((i) => (
+          <motion.span
+            key={i}
+            aria-hidden="true"
+            className="absolute inset-0 rounded-full border-2 border-gold"
+            initial={{ scale: 0.8, opacity: 0.7 }}
+            animate={{ scale: 2.1, opacity: 0 }}
+            transition={{ delay: 0.15 + i * 0.22, duration: 1.1, ease: 'easeOut' }}
+          />
+        ))}
+        <motion.span
+          aria-hidden="true"
+          className="absolute inset-0 grid place-items-center overflow-hidden rounded-full bg-[radial-gradient(circle_at_35%_30%,#F8DA92,#E2B65C_55%,#B9862E)] text-gold-ink shadow-[0_0_40px_rgba(226,182,92,0.45)]"
+          initial={{ scale: 0, rotate: -25 }}
+          animate={{ scale: [0, 1.18, 1], rotate: 0 }}
+          transition={{ duration: 0.6, times: [0, 0.6, 1], ease: [0.22, 1, 0.36, 1] }}
+        >
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
+            <motion.path
+              d="M5 12.5l4.5 4.5L19 7.5"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ delay: 0.3, duration: 0.45, ease: 'easeOut' }}
+            />
+          </svg>
+          <motion.span
+            className="absolute inset-y-0 w-8 -skew-x-12 bg-white/45 blur-[2px]"
+            initial={{ x: -70 }}
+            animate={{ x: 70 }}
+            transition={{ delay: 0.7, duration: 0.7, ease: 'easeInOut' }}
+          />
+        </motion.span>
+      </div>
+      <motion.p {...rise(0)} className="mt-5 text-[24px] font-semibold text-ink tnum">
+        <AnimatedValue value={amount} from={0} format={format} duration={1.1} /> {suffix}
+      </motion.p>
+      {lines.map((l, i) => <motion.p key={l} {...rise(i + 1)} className="mt-1 text-[14px] text-ink-2 tnum">{l}</motion.p>)}
+      <motion.div {...rise(lines.length + 1)}>{children}</motion.div>
+      <motion.div {...rise(lines.length + 2)} className="mt-6"><PrimaryButton tone="light" onClick={onDone}>Done</PrimaryButton></motion.div>
     </div>
   )
 }

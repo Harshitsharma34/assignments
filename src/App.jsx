@@ -83,7 +83,7 @@ export default function App() {
   return (
     <MotionConfig reducedMotion={reduced ? 'always' : 'never'}>
       <div className="flex min-h-full flex-col items-center gap-6 py-0 sm:py-8 lg:flex-row lg:items-start lg:justify-center lg:gap-10">
-        <div className="relative h-[100dvh] w-full overflow-hidden bg-page sm:h-[844px] sm:w-[390px] sm:rounded-[48px] sm:border sm:border-line sm:shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
+        <div id="phone-screen" className="relative h-[100dvh] w-full overflow-hidden bg-page sm:h-[844px] sm:w-[390px] sm:rounded-[48px] sm:border sm:border-line sm:shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
           <StatusBar />
 
           <motion.div

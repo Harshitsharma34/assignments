@@ -84,7 +84,9 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
       <Sheet open={review} onClose={close} title={flow.status === 'success' ? 'Requested' : 'Review withdrawal'}>
         {flow.status === 'success' ? (
           <SuccessView
-            title={`${formatRupees(rupees)} on its way`}
+            amount={rupees}
+            format={formatRupees}
+            suffix="on its way"
             lines={[`To bank account ${ACCOUNT}`, `${formatScoins(scoins)} Scoins withdrawn · ${formatScoins(balance)} left`]}
             onDone={() => { setReview(false); onBack() }}
           >
