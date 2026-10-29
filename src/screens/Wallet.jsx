@@ -11,7 +11,8 @@ import RatesExplainer from './wallet/RatesSheet.jsx'
 import ScoinCalculator from './wallet/ScoinCalculator.jsx'
 import Reveal from './wallet/Reveal.jsx'
 import PopularDeals from './wallet/PopularDeals.jsx'
-import WalletHero from './wallet/WalletHero.jsx'
+import HeroAtmosphere from './wallet/HeroAtmosphere.jsx'
+import WalletHero, { HERO } from './wallet/WalletHero.jsx'
 
 export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, notify, idleMotion }) {
   const { profile, state, balance, rows, monthEarned, monthSpent, dispatch } = wallet
@@ -27,11 +28,7 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
 
   return (
     <div className="relative">
-      {/* A single soft beam of warm light from the top right; the coins sit inside it. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(55%_38%_at_50%_20%,rgba(226,182,92,0.10),transparent_72%)]"
-      />
+      <HeroAtmosphere coinY={HERO.coinY} />
       <div className="relative pb-28">
         <div className="h-11" aria-hidden="true" />
         <Reveal i={i++}>

@@ -185,7 +185,7 @@ export default function App() {
 
 function StatusBar() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex h-11 items-center justify-between bg-gradient-to-b from-page via-page/85 to-transparent px-8 text-[15px] font-semibold text-ink" aria-hidden="true">
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex h-11 items-center justify-between bg-gradient-to-b from-page/55 to-transparent px-8 text-[15px] font-semibold text-ink" aria-hidden="true">
       <span>9:41</span>
       <span className="flex items-center gap-1.5">
         <span className="flex items-end gap-[2px]">{[5, 7, 9, 11].map((h) => <span key={h} className="w-[3px] rounded-sm bg-ink" style={{ height: h }} />)}</span>

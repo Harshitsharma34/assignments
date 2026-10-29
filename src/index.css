@@ -24,6 +24,11 @@
 html, body, #root { height: 100%; }
 body { margin: 0; background: #0B0B0B; color: rgb(var(--ink)); font-family: "Noto Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 
+/* The rays drift a couple of degrees, slowly enough to read as light, not motion. */
+@keyframes rays-drift { from { transform: translateX(-50%) rotate(-1.6deg); } to { transform: translateX(-50%) rotate(1.6deg); } }
+.hero-rays { animation: rays-drift 14s ease-in-out infinite alternate; transform-origin: 50% 0; }
+@media (prefers-reduced-motion: reduce) { .hero-rays { animation: none; } }
+
 @layer utilities {
   .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
   .label { @apply text-[17px] font-semibold text-ink; }
