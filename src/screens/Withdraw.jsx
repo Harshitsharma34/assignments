@@ -86,7 +86,7 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
                 aria-describedby="amount-help"
                 aria-invalid={over || (under && text !== '') ? true : undefined}
                 style={{ width: `${Math.max(1, text.length) * 0.56 + 0.05}em` }}
-                className="bg-transparent text-[60px] font-bold leading-none tracking-[-0.04em] text-white caret-white tnum focus:outline-none"
+                className="rounded-lg bg-transparent focus-visible:rounded-lg focus-visible:outline-offset-4 text-[60px] font-bold leading-none tracking-[-0.04em] text-white caret-white tnum focus:outline-none"
               />
               <Pencil size={16} aria-hidden="true" className="ml-1 self-end mb-2 text-white/50" />
             </div>
@@ -135,7 +135,7 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
               placeholder="name@bank"
               aria-invalid={touched && !upiValid ? true : undefined}
               aria-describedby="upi-help"
-              className={`mt-1 h-12 w-full border-b bg-transparent text-[18px] text-white placeholder:text-white/30 focus:outline-none ${touched && !upiValid ? 'border-danger' : 'border-white/20 focus:border-gold-hi'}`}
+              className={`mt-1 h-12 w-full appearance-none rounded-none border-0 border-b bg-transparent px-0 shadow-none focus-visible:rounded-none focus-visible:outline-none focus:border-b-2 text-[18px] text-white placeholder:text-white/30 focus:outline-none ${touched && !upiValid ? 'border-danger' : 'border-white/20 focus:border-gold-hi'}`}
             />
             <p id="upi-help" className={`mt-2 text-[12px] ${touched && !upiValid ? 'text-danger' : 'text-white/50'}`}>
               {touched && !upiValid ? 'That doesn’t look like a UPI ID. It should look like name@bank.' : 'Use the UPI ID linked to your bank account.'}
@@ -166,10 +166,10 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
 function GreenStage({ children, center = false }) {
   return (
     <div className={`relative min-h-full overflow-hidden bg-black pb-10 ${center ? 'flex flex-col' : ''}`}>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[linear-gradient(180deg,#14D467_0%,#0A9A48_26%,#04512A_52%,#011A0D_76%,#000_100%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[560px] opacity-20 bg-[linear-gradient(180deg,#14D467_0%,#0A9A48_26%,#04512A_52%,#011A0D_76%,#000_100%)]" />
       {/* Two slow light pools drift over the green so it feels lit, not flat. */}
-      <div aria-hidden="true" className="aurora pointer-events-none absolute -left-24 -top-24 h-[340px] w-[340px] rounded-full bg-[radial-gradient(closest-side,rgba(190,255,120,0.45),transparent)]" />
-      <div aria-hidden="true" className="aurora aurora-b pointer-events-none absolute -right-28 top-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(242,205,126,0.30),transparent)]" />
+      <div aria-hidden="true" className="aurora pointer-events-none absolute -left-24 -top-24 h-[340px] w-[340px] rounded-full bg-[radial-gradient(closest-side,rgba(190,255,120,0.09),transparent)]" />
+      <div aria-hidden="true" className="aurora aurora-b pointer-events-none absolute -right-28 top-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(242,205,126,0.07),transparent)]" />
       <svg aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-140px] -translate-x-1/2 opacity-[0.14]" width="560" height="560" viewBox="0 0 560 560">
         {Array.from({ length: 14 }, (_, i) => (
           <circle key={i} cx="280" cy="280" r={60 + i * 16} fill="none" stroke="#fff" strokeWidth="0.6" strokeDasharray={i % 2 ? '1 5' : undefined} />

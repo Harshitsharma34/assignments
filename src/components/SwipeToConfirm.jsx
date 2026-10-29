@@ -12,7 +12,7 @@ export default function SwipeToConfirm({ label, disabled, onConfirm, tone = 'bra
   const [done, setDone] = useState(false)
   const THUMB = 48
   const max = () => (track.current ? track.current.offsetWidth - THUMB - 8 : 240)
-  const fill = useTransform(x, (v) => v + THUMB + 4)
+  const fill = useTransform(x, (v) => v + THUMB)
   const fade = useTransform(x, (v) => 1 - Math.min(1, v / (max() * 0.6)))
 
   const confirm = () => {
@@ -28,7 +28,7 @@ export default function SwipeToConfirm({ label, disabled, onConfirm, tone = 'bra
       className={`relative h-14 overflow-hidden ${gold || light ? 'rounded-full' : 'rounded-2xl'} ${disabled ? (gold || light ? 'bg-white/[0.08]' : 'bg-sunken') : light ? 'bg-white' : gold ? 'bg-[linear-gradient(90deg,#B9862E,#E2B65C_45%,#F6D488)]' : 'bg-brand'}`}
       aria-disabled={disabled || undefined}
     >
-      {!disabled && <motion.div aria-hidden="true" className={`absolute inset-y-0 left-0 ${light ? 'bg-[#14D467]/15' : gold ? 'bg-white/25' : 'bg-brand-hi/60'}`} style={{ width: fill }} />}
+      {!disabled && <motion.div aria-hidden="true" className={`absolute inset-y-1 left-1 ${gold || light ? 'rounded-full' : 'rounded-xl'} ${light ? 'bg-[#14D467]/15' : gold ? 'bg-white/25' : 'bg-brand-hi/60'}`} style={{ width: fill }} />}
       <motion.span
         style={{ opacity: fade }}
         className={`pointer-events-none absolute inset-0 grid place-items-center pl-10 text-[15px] font-semibold tnum ${disabled ? 'text-white/45' : light ? 'text-black' : gold ? 'text-[#1C1406]' : 'text-white'}`}
