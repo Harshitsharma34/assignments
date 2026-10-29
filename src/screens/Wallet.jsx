@@ -30,15 +30,15 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
       {/* A single soft beam of warm light from the top right; the coins sit inside it. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[460px] bg-[radial-gradient(60%_42%_at_78%_22%,rgba(226,182,92,0.16),transparent_70%),linear-gradient(118deg,transparent_48%,rgba(255,236,200,0.05)_58%,transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(55%_38%_at_50%_20%,rgba(226,182,92,0.10),transparent_72%)]"
       />
       <div className="relative pb-28">
         <div className="h-11" aria-hidden="true" />
         <Reveal i={i++}>
-          <header className="flex h-[52px] items-center gap-3 px-4">
-            <button aria-label="Back" className="grid h-11 w-11 place-items-center rounded-full border border-line bg-sunken/80 text-ink hover:bg-sunken-2"><ArrowLeft size={20} /></button>
-            <h1 className="flex-1 font-display text-[22px] text-ink">Scoins</h1>
-            <button aria-label="How Scoin rates work" onClick={openRates} className="grid h-11 w-11 place-items-center rounded-full border border-line bg-sunken/80 text-ink hover:bg-sunken-2"><Info size={19} /></button>
+          <header className="flex h-[52px] items-center justify-between px-4">
+            <button aria-label="Back" className="grid h-10 w-10 place-items-center rounded-full bg-sunken text-ink hover:bg-sunken-2"><ArrowLeft size={19} /></button>
+            <h1 className="text-[16px] font-semibold text-ink">Scoins</h1>
+            <button aria-label="How Scoin rates work" onClick={openRates} className="grid h-10 w-10 place-items-center rounded-full bg-sunken text-ink hover:bg-sunken-2"><Info size={18} /></button>
           </header>
         </Reveal>
 
@@ -59,7 +59,7 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
 
         {!isEmpty && (
           <Reveal i={i++} className="mt-5">
-            <Actions onSpend={() => navigate('spend')} onWithdraw={() => navigate('withdraw')} onEarn={() => navigate('earn')} />
+            <Actions onSpend={() => navigate('spend')} onWithdraw={() => navigate('withdraw')} onEarn={() => navigate('earn')} onRates={openRates} />
           </Reveal>
         )}
 
@@ -68,7 +68,7 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
         )}
 
         {isEmpty && !isNew && (
-          <Reveal i={i++} className="mt-5 px-5 text-[14px] leading-relaxed text-ink-2">
+          <Reveal i={i++} className="mx-auto mt-4 max-w-[320px] px-5 text-center text-[14px] leading-relaxed text-ink-2">
             You used all {state.lifetime.spent.toLocaleString('en-IN')} Scoins on SalarySe and got their full {formatRupees(savedRupees)} value. Here's the quickest way to your next reward.
           </Reveal>
         )}
@@ -128,7 +128,7 @@ function OtherWays({ onOpen }) {
   return (
     <section aria-labelledby="other-ways" className="px-5">
       <h2 id="other-ways" className="label">Other ways to earn</h2>
-      <ul className="mt-3 overflow-hidden rounded-card border border-line bg-gradient-to-b from-white/[0.04] to-white/[0.01]">
+      <ul className="mt-3 overflow-hidden rounded-card bg-surface">
         {ways.map(({ icon: Icon, title, sub }, i) => (
           <li key={title} className={i ? 'border-t border-line' : ''}>
             <button onClick={onOpen} className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left hover:bg-sunken">

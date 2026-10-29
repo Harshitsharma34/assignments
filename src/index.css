@@ -6,15 +6,15 @@
    `.on-dark` keeps the same values so components written for the hero band still work. */
 :root, .on-dark {
   color-scheme: dark;
-  --page: 6 6 6;
-  --surface: 17 17 17;
-  --sunken: 24 24 23;
-  --sunken-2: 34 34 32;
-  --strong: 56 55 52;
+  --page: 12 12 13;
+  --surface: 28 28 30;
+  --sunken: 40 40 43;
+  --sunken-2: 52 52 56;
+  --strong: 72 72 77;
   --line: 255 255 255;
   --ink: 246 243 236;
   --ink-2: 184 179 170;
-  --ink-3: 146 141 132;
+  --ink-3: 148 146 150;
   --accent: 232 194 116;
   --gold: 226 182 92;
   --gold-hi: 242 205 126;
@@ -26,7 +26,7 @@ body { margin: 0; background: #0B0B0B; color: rgb(var(--ink)); font-family: "Not
 
 @layer utilities {
   .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
-  .label { @apply text-[12px] font-medium uppercase tracking-[0.2em] text-ink-2; }
+  .label { @apply text-[17px] font-semibold text-ink; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { scrollbar-width: none; }
 }

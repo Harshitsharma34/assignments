@@ -8,9 +8,9 @@ export default function CardRewards({ balance, card, onExplain }) {
   const total = balance + card.cycleEstimate
   const pct = (n) => `${(n / total) * 100}%`
   return (
-    <section aria-labelledby="breakdown" className="mx-5 rounded-card border border-line bg-surface p-5">
+    <section aria-labelledby="breakdown" className="mx-5 rounded-card bg-surface p-4">
       <div className="flex items-center justify-between">
-        <h2 id="breakdown" className="label">Your balance</h2>
+        <h2 id="breakdown" className="text-[15px] font-medium text-ink">Card rewards</h2>
         <button onClick={onExplain} className="-mr-2 inline-flex min-h-[44px] items-center gap-1 px-2 text-[13px] text-ink-2 hover:text-ink">
           <Info size={14} aria-hidden="true" /> How card rewards work
         </button>
@@ -27,7 +27,7 @@ export default function CardRewards({ balance, card, onExplain }) {
         <Row swatch="bg-gold-lo" label={`From ${card.name}`} sub={`${card.statement} statement · 1 point = 1 Scoin`} scoins={card.converted} />
       </dl>
 
-      <div className="mt-4 flex gap-3 rounded-xl bg-sunken p-3.5">
+      <div className="mt-4 flex gap-3 border-t border-line pt-4">
         <Clock3 size={17} aria-hidden="true" className="mt-0.5 shrink-0 text-ink-2" />
         <div className="flex-1">
           <p className="flex items-baseline justify-between text-[14px] font-medium text-ink">

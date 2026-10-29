@@ -5,8 +5,8 @@ import AnimatedValue from '../../components/AnimatedValue.jsx'
 import { bankValue, formatRupees, formatScoins, inAppValue } from '../../lib/scoins.js'
 
 const STEP = 50 // 50 Scoins = ₹10 in-app, ₹5 to bank: every stop is a whole rupee either way
-const THUMB = 76
-const TICKS = 14
+const THUMB = 54
+const TICKS = 16
 
 const MODES = [
   { id: 'spend', label: 'On SalarySe' },
@@ -43,47 +43,47 @@ export default function ScoinCalculator({ balance, onSpend, onWithdraw }) {
   }, [scoins, spend, value])
 
   return (
-    <section aria-labelledby="calc-title" className="mx-5 overflow-hidden rounded-[22px] border border-line bg-surface">
+    <section aria-labelledby="calc-title" className="mx-5 overflow-hidden rounded-card bg-surface">
       <h2 id="calc-title" className="sr-only">Scoin value calculator</h2>
-      <div className="px-4 pb-5 pt-4">
-        <div role="tablist" aria-label="Where to use Scoins" className="grid grid-cols-2 rounded-xl bg-sunken p-1">
+      <div className="px-4 pb-4 pt-4">
+        <div role="tablist" aria-label="Where to use Scoins" className="grid grid-cols-2 rounded-full bg-sunken p-1">
           {MODES.map((m) => (
             <button
               key={m.id}
               role="tab"
               aria-selected={mode === m.id}
               onClick={() => setMode(m.id)}
-              className={`relative h-11 rounded-lg text-[15px] transition-colors ${mode === m.id ? 'font-semibold text-[#141414]' : 'text-ink-2 hover:text-ink'}`}
+              className={`relative h-9 rounded-full text-[14px] transition-colors ${mode === m.id ? 'font-semibold text-[#141414]' : 'text-ink-2 hover:text-ink'}`}
             >
               {mode === m.id && (
-                <motion.span layoutId="calc-mode" className="absolute inset-0 rounded-lg bg-[#ECE6DA]" transition={{ type: 'spring', stiffness: 420, damping: 36 }} />
+                <motion.span layoutId="calc-mode" className="absolute inset-0 rounded-full bg-[#ECE6DA]" transition={{ type: 'spring', stiffness: 420, damping: 36 }} />
               )}
               <span className="relative">{m.label}</span>
             </button>
           ))}
         </div>
 
-        <div className="mt-6 flex items-center justify-between gap-3">
-          <p className="text-[15px] leading-snug text-ink-2">
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <p className="text-[13px] leading-snug text-ink-3">
             Scoins to use
-            <span className="block tnum">Amount: {formatScoins(scoins)} Scoins</span>
+            <span className="block text-[17px] font-semibold text-ink tnum">{formatScoins(scoins)} Scoins</span>
           </p>
-          <p className="shrink-0 rounded-xl border border-line bg-sunken px-4 py-2.5 text-[15px] text-ink-2">
-            <span className="text-[19px] font-bold text-ink tnum"><AnimatedValue value={value} format={formatRupees} duration={0.4} /></span> value
+          <p className="shrink-0 rounded-full bg-sunken px-3.5 py-1.5 text-[13px] text-ink-2">
+            <span className="text-[16px] font-semibold text-ink tnum"><AnimatedValue value={value} format={formatRupees} duration={0.4} /></span> value
           </p>
         </div>
 
         <TickSlider value={scoins} max={max} onChange={setScoins} label="Scoins to use" />
 
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-[15px] text-ink-2">Use</span>
+          <span className="text-[13px] text-ink-3">Quick pick</span>
           <div className="flex gap-1" role="group" aria-label="Quick amounts">
             {PICKS.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setScoins(snap(max * p.share, max))}
                 aria-pressed={activePick === p.id}
-                className={`h-11 min-w-[64px] rounded-lg px-3 text-[15px] tnum transition-colors ${activePick === p.id ? 'bg-sunken-2 font-semibold text-ink' : 'text-ink-3 hover:text-ink'}`}
+                className={`h-9 min-w-[56px] rounded-full px-3 text-[13px] tnum transition-colors ${activePick === p.id ? 'bg-sunken font-semibold text-ink' : 'text-ink-3 hover:text-ink'}`}
               >
                 {p.label}
               </button>
@@ -92,16 +92,16 @@ export default function ScoinCalculator({ balance, onSpend, onWithdraw }) {
         </div>
       </div>
 
-      <div className="border-t border-line bg-sunken/60 px-4 py-5">
+      <div className="mx-4 border-t border-line py-4">
         <p className="sr-only" role="status">{announcement}</p>
-        <p className="text-[15px] leading-snug text-ink-2 tnum">
+        <p className="text-[14px] leading-snug text-ink-2 tnum">
           {formatScoins(scoins)} Scoins {spend ? 'spent on SalarySe' : 'withdrawn to your bank'} would become
         </p>
-        <p className="mt-2 flex flex-wrap items-baseline gap-x-2 text-[22px] font-bold text-ink tnum">
+        <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 text-[22px] font-semibold text-ink tnum">
           {spend ? <ArrowUpRight size={20} aria-hidden="true" className="self-center text-gain" /> : <Landmark size={19} aria-hidden="true" className="self-center text-ink-2" />}
           <AnimatedValue value={value} format={formatRupees} duration={0.4} />
           {spend ? (
-            <span className="text-[17px] font-medium text-gain">(2× the bank value)</span>
+            <span className="text-[14px] font-medium text-gain">2× the bank value</span>
           ) : (
             <span className="text-[15px] font-normal text-ink-3">or {formatRupees(inAppValue(scoins))} on SalarySe</span>
           )}
@@ -114,8 +114,8 @@ export default function ScoinCalculator({ balance, onSpend, onWithdraw }) {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => (spend ? onSpend : onWithdraw)?.(scoins)}
-            className={`flex h-11 items-center gap-1.5 rounded-xl px-4 text-[15px] font-semibold tnum ${
-              spend ? 'bg-gold text-gold-ink hover:bg-gold-hi' : 'border border-ink/40 text-ink hover:bg-sunken-2'
+            className={`flex h-10 items-center gap-1 rounded-full px-4 text-[14px] font-semibold tnum ${
+              spend ? 'bg-gold text-gold-ink hover:bg-gold-hi' : 'bg-sunken text-ink hover:bg-sunken-2'
             }`}
           >
             {spend ? 'Spend' : 'Withdraw'} {formatRupees(value)}
@@ -157,7 +157,7 @@ function TickSlider({ value, max, onChange, label }) {
   return (
     <div
       ref={track}
-      className="relative -ml-4 mt-5 h-[92px] touch-none select-none"
+      className="relative mt-4 h-[64px] touch-none select-none"
       onPointerDown={(e) => {
         dragging.current = true
         e.currentTarget.setPointerCapture?.(e.pointerId)
@@ -168,12 +168,12 @@ function TickSlider({ value, max, onChange, label }) {
       onPointerCancel={() => (dragging.current = false)}
     >
       <div aria-hidden="true" className="absolute inset-x-6 top-1/2 flex -translate-y-1/2 justify-between">
-        {Array.from({ length: TICKS }, (_, i) => <span key={i} className="h-5 w-[2px] rounded-full bg-white/15" />)}
+        {Array.from({ length: TICKS }, (_, i) => <span key={i} className="h-3 w-px bg-white/20" />)}
       </div>
       {/* Trail: fades in from the left edge and hugs the thumb. */}
       <div
         aria-hidden="true"
-        className="absolute inset-y-[8px] left-0 rounded-r-full bg-[linear-gradient(90deg,rgba(226,182,92,0)_0%,rgba(226,182,92,0.18)_45%,rgba(226,182,92,0.5)_100%)]"
+        className="absolute inset-y-[5px] left-0 rounded-full bg-[linear-gradient(90deg,rgba(226,182,92,0)_0%,rgba(226,182,92,0.12)_50%,rgba(226,182,92,0.32)_100%)]"
         style={{ width: `calc(${left} + ${THUMB}px)` }}
       />
       <div
@@ -185,11 +185,11 @@ function TickSlider({ value, max, onChange, label }) {
         aria-valuenow={value}
         aria-valuetext={`${formatScoins(value)} Scoins`}
         onKeyDown={onKeyDown}
-        className="absolute top-1/2 grid -translate-y-1/2 cursor-grab place-items-center rounded-full bg-[#F7F5F0] shadow-[0_0_0_5px_rgba(226,182,92,0.55),0_8px_24px_rgba(0,0,0,0.45)] active:cursor-grabbing"
+        className="absolute top-1/2 grid -translate-y-1/2 cursor-grab place-items-center rounded-full bg-[#F7F5F0] shadow-[0_0_0_3px_rgba(226,182,92,0.6),0_4px_14px_rgba(0,0,0,0.4)] active:cursor-grabbing"
         style={{ left, width: THUMB, height: THUMB }}
       >
         <span aria-hidden="true" className="flex items-center text-[#9A958C]">
-          <ChevronLeft size={22} strokeWidth={1.6} /><ChevronRight size={22} strokeWidth={1.6} className="-ml-1.5" />
+          <ChevronLeft size={17} strokeWidth={1.8} /><ChevronRight size={17} strokeWidth={1.8} className="-ml-1" />
         </span>
       </div>
     </div>

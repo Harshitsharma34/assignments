@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, ChevronRight, Clock3 } from 'lucide-react'
+import { Clock3 } from 'lucide-react'
 import ScoinGlyph from '../../components/ScoinGlyph.jsx'
 import { formatWhen } from '../../lib/format.js'
 import { bankValue, formatRupees, formatScoins, formatSigned, inAppValue } from '../../lib/scoins.js'
@@ -12,11 +12,11 @@ export function RecentActivity({ rows, pending, onOpen, onSeeAll }) {
     <section aria-labelledby="activity-title" className="px-5">
       <div className="flex items-center justify-between">
         <h2 id="activity-title" className="label">Recent activity</h2>
-        <button onClick={onSeeAll} className="-mr-2 inline-flex min-h-[44px] items-center gap-1.5 px-2 text-[14px] text-ink">
-          See all <ArrowRight size={15} aria-hidden="true" />
+        <button onClick={onSeeAll} className="-mr-2 inline-flex min-h-[44px] items-center px-2 text-[15px] text-accent">
+          See all
         </button>
       </div>
-      <ul className="mt-1 overflow-hidden rounded-card border border-line bg-gradient-to-b from-white/[0.04] to-white/[0.01]">
+      <ul className="mt-1 overflow-hidden rounded-card bg-surface py-1">
         <AnimatePresence initial={false}>
           {recent.map((r) => <Row key={r.id} item={r} pending={r.pending} onOpen={() => onOpen(r)} />)}
         </AnimatePresence>
@@ -64,11 +64,11 @@ function Row({ item, pending, onOpen }) {
       initial={item.fresh ? { opacity: 0, height: 0, backgroundColor: 'rgba(226,182,92,0.16)' } : false}
       animate={{ opacity: 1, height: 'auto', backgroundColor: 'rgba(226,182,92,0)' }}
       transition={{ duration: 0.5, backgroundColor: { duration: 2.4 } }}
-      className="border-t border-line first:border-t-0"
+      className=""
     >
-      <button onClick={onOpen} className="flex w-full items-center gap-3.5 py-3.5 pl-4 pr-3 text-left hover:bg-white/[0.03]">
-        <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${pending ? 'border border-dashed border-ink-3/60' : 'border border-line bg-sunken'}`} aria-hidden="true">
-          <Icon size={18} className="text-ink" />
+      <button onClick={onOpen} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.03]">
+        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${pending ? 'border border-dashed border-ink-3/60' : 'bg-sunken'}`} aria-hidden="true">
+          <Icon size={17} className="text-ink-2" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[15px] text-ink">{item.title}</span>
@@ -78,12 +78,11 @@ function Row({ item, pending, onOpen }) {
           </span>
         </span>
         <span className="text-right">
-          <span className={`block text-[16px] font-semibold tnum ${pending ? 'text-ink-2' : isSpend ? 'text-ink' : 'text-gain'}`}>
+          <span className={`block text-[15px] font-medium tnum ${pending ? 'text-ink-2' : isSpend ? 'text-ink' : 'text-gain'}`}>
             {isSpend ? `Saved ${formatRupees(item.saved)}` : `+${rupees}`}
           </span>
           <span className="mt-0.5 block text-[12px] text-ink-3 tnum">{formatSigned(item.scoins)} Scoins</span>
         </span>
-        <ChevronRight size={18} aria-hidden="true" className="shrink-0 text-ink-3" />
       </button>
     </motion.li>
   )

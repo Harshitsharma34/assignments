@@ -21,7 +21,7 @@ export default function NextBuild({ route, balance, selected, onBack }) {
         <ScoinGlyph /> {formatScoins(balance)} Scoins · {formatRupees(inAppValue(balance))} on SalarySe · {formatRupees(bankValue(balance))} to bank
       </p>
       {selected != null && (
-        <p className="mt-4 rounded-card border border-line bg-surface p-4 text-[15px] text-ink tnum">
+        <p className="mt-4 rounded-card bg-surface p-4 text-[15px] text-ink tnum">
           Selected: {formatScoins(selected)} Scoins = {formatRupees(route === 'withdraw' ? bankValue(selected) : inAppValue(selected))}
           {route === 'withdraw' ? ' to your bank' : ' on SalarySe'}
         </p>

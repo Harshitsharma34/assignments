@@ -23,7 +23,7 @@ module.exports = {
         sans: ['"Noto Sans"', 'system-ui', 'sans-serif'],
         display: ['"Noto Sans"', 'system-ui', 'sans-serif'],
       },
-      borderRadius: { card: '20px' },
+      borderRadius: { card: '24px' },
     },
   },
   plugins: [],
