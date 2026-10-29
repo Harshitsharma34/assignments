@@ -1,7 +1,7 @@
 import { motion, useTransform } from 'framer-motion'
 import { T, easeOutCubic, useIntroTimeline } from '../../components/coin/timeline.js'
 
-// Light from above the screen, falling on the coins: a warm source glow, soft rays fanning down,
+// Light from above the screen, falling on the coins: a warm source glow, one broad beam,
 // and fine guilloché rings centred on the coins, the way a banknote or coin is engraved.
 // Everything fades out by mid-screen so cards below stay calm. It arrives with the intro's
 // last phase, so the opening stays black.
@@ -14,15 +14,14 @@ export default function HeroAtmosphere({ coinY = 150 }) {
       {/* Source glow just above the top edge. */}
       <div className="absolute inset-0 bg-[radial-gradient(80%_36%_at_50%_-6%,rgba(246,212,140,0.34),rgba(226,182,92,0.10)_45%,transparent_78%)]" />
 
-      {/* Rays: two conic fans with different periods so the beams look irregular, softened and faded. */}
+      {/* One broad beam: a single cone of light with feathered edges, fading as it falls. */}
       <div
-        className="hero-rays absolute left-1/2 top-[-80px] h-[700px] w-[900px] -translate-x-1/2 blur-[7px]"
+        className="hero-rays absolute left-1/2 top-[-40px] h-[640px] w-[760px] -translate-x-1/2 blur-[22px]"
         style={{
           background:
-            'repeating-conic-gradient(from 0deg at 50% 0%, rgba(246,212,140,0.20) 0deg 2.4deg, transparent 2.4deg 8deg),' +
-            'repeating-conic-gradient(from 4deg at 50% 0%, rgba(255,230,180,0.12) 0deg 4.5deg, transparent 4.5deg 15deg)',
-          WebkitMaskImage: 'radial-gradient(58% 80% at 50% 0%, #000 0%, rgba(0,0,0,0.7) 38%, transparent 82%)',
-          maskImage: 'radial-gradient(58% 80% at 50% 0%, #000 0%, rgba(0,0,0,0.7) 38%, transparent 82%)',
+            'conic-gradient(from 154deg at 50% 0%, transparent 0deg, rgba(246,212,140,0.16) 14deg, rgba(250,222,160,0.26) 26deg, rgba(246,212,140,0.16) 38deg, transparent 52deg, transparent 360deg)',
+          WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, rgba(0,0,0,0.75) 35%, transparent 85%)',
+          maskImage: 'linear-gradient(to bottom, #000 0%, rgba(0,0,0,0.75) 35%, transparent 85%)',
         }}
       />
 
