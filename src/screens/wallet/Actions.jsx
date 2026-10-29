@@ -38,8 +38,8 @@ function FlipCoin({ icon: Icon }) {
         <span className="absolute inset-0 grid place-items-center rounded-full bg-gold text-gold-ink [backface-visibility:hidden]">
           <Icon size={20} strokeWidth={2} />
         </span>
-        <span className="absolute inset-0 grid place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#FBE3A6,#E2B65C_60%,#B9862E)] [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <ScoinGlyph size={36} />
+        <span className="absolute inset-0 grid place-items-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <ScoinGlyph size={48} />
         </span>
       </span>
     </span>

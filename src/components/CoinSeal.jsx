@@ -3,8 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import Confetti from './Confetti.jsx'
 import ScoinGlyph from './ScoinGlyph.jsx'
 
-// The success seal: a gold coin drops in and turns over twice, settling as a seal with the tick
-// drawn on it. Rays turn slowly behind it, shockwaves and sparkles go out, then gold confetti.
+// The success seal: the 3D Scoin drops in and turns over twice, then a tick badge pops onto it. Rays turn slowly behind it, shockwaves and sparkles go out, then gold confetti.
 export default function CoinSeal({ size = 200, className = '', rays = 'rgba(255,255,255,0.16)' }) {
   const seal = useRef(null)
   const reduce = useReducedMotion()
@@ -50,37 +49,48 @@ export default function CoinSeal({ size = 200, className = '', rays = 'rgba(255,
           <ScoinGlyph size={s} />
         </motion.span>
       ))}
-      {/* The coin drops, turns over and becomes the seal. */}
+      {/* The 3D Scoin drops in and turns over twice; a tick badge then pops onto it. */}
       <motion.span
         aria-hidden="true"
         style={{ transformPerspective: 600 }}
-        className="relative grid h-[112px] w-[112px] place-items-center overflow-hidden rounded-full bg-[radial-gradient(circle_at_34%_28%,#FFF0C2,#F2CD7E_38%,#D4A441_70%,#9C7020)] shadow-[0_0_0_6px_rgba(242,205,126,0.14),0_18px_50px_rgba(242,205,126,0.35),inset_0_-6px_12px_rgba(110,72,10,0.45),inset_0_4px_8px_rgba(255,255,255,0.5)]"
+        className="relative block h-[124px] w-[124px] drop-shadow-[0_16px_36px_rgba(242,205,126,0.35)]"
         initial={reduce ? false : { y: -140, scale: 0.4, rotateY: 0, opacity: 0 }}
         animate={{ y: 0, scale: [0.4, 1.12, 1], rotateY: 720, opacity: 1 }}
         transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1], opacity: { duration: 0.2, delay: 0.2 } }}
       >
-        <span className="absolute inset-[7px] rounded-full border border-[#8A6116]/35" />
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" className="relative text-[#3A2705]">
+        <ScoinGlyph size={124} className="block" />
+        {/* One light sweep across the face, clipped to the coin. */}
+        {!reduce && (
+          <span className="absolute inset-0 overflow-hidden rounded-full">
+            <motion.span
+              className="absolute inset-y-0 w-10 -skew-x-12 bg-white/45 blur-[3px]"
+              initial={{ x: -110 }}
+              animate={{ x: 150 }}
+              transition={{ delay: 1.3, duration: 0.8, ease: 'easeInOut' }}
+            />
+          </span>
+        )}
+      </motion.span>
+      <motion.span
+        aria-hidden="true"
+        className="absolute grid h-11 w-11 place-items-center rounded-full bg-[#14B85A] text-white shadow-[0_0_0_4px_rgba(0,0,0,0.35)]"
+        style={{ left: '50%', top: '50%', marginLeft: 26, marginTop: 26 }}
+        initial={reduce ? false : { scale: 0 }}
+        animate={{ scale: [0, 1.25, 1] }}
+        transition={{ delay: 0.95, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <motion.path
             d="M5 12.5l4.5 4.5L19 7.5"
             stroke="currentColor"
-            strokeWidth="2.6"
+            strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
             initial={reduce ? false : { pathLength: 0 }}
             animate={{ pathLength: 1 }}
-            transition={{ delay: 0.95, duration: 0.4, ease: 'easeOut' }}
+            transition={{ delay: 1.1, duration: 0.35, ease: 'easeOut' }}
           />
         </svg>
-        {/* One light sweep across the face. */}
-        {!reduce && (
-          <motion.span
-            className="absolute inset-y-0 w-10 -skew-x-12 bg-white/50 blur-[3px]"
-            initial={{ x: -110 }}
-            animate={{ x: 110 }}
-            transition={{ delay: 1.3, duration: 0.8, ease: 'easeInOut' }}
-          />
-        )}
       </motion.span>
       {/* Sparkles that twinkle once around the seal. */}
       {!reduce && SPARKS.map(([x, y, d], i) => (

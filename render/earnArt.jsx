@@ -118,6 +118,8 @@ function Scene() {
         ))}
       </group>
     ),
+    // Single coin, almost face-on, filling the frame: used for every inline Scoin in the app.
+    coin: <Coin coin={coin} scale={1.6} rotation={[0.1, -0.16, 0]} />,
     recurring: (
       <group rotation={[0.25, -0.4, 0]} position={[0, -0.9, 0]}>
         <Stack coin={coin} count={6} scale={0.55} />
@@ -135,7 +137,7 @@ function App() {
       camera={{ fov: 30, position: [0, 0, 7.2] }}
       dpr={2}
       style={{ width: 240, height: 240 }}
-      onCreated={() => setTimeout(() => (window.__ready = true), 600)}
+      onCreated={({ gl }) => { if (art === 'coin') gl.toneMappingExposure = 1.55; setTimeout(() => (window.__ready = true), 600) }}
     >
       <ambientLight intensity={0.15} />
       <directionalLight position={[-2.5, 3.5, 5]} intensity={2.2} color="#FFE8C2" />

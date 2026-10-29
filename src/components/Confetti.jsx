@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useReducedMotion } from 'framer-motion'
+import coinSrc from '../assets/scoin.webp'
 
 // One celebratory burst on a canvas over the phone screen: a fountain from the success badge
 // and two side cannons. Pieces are ribbons, flecks and tiny gold coins, with gravity, drag,
 // spin and a flutter so they fall like paper rather than sliding. Skipped under reduced motion.
+// The 3D Scoin still, drawn for the coin pieces.
+const COIN = typeof Image !== 'undefined' ? Object.assign(new Image(), { src: coinSrc }) : {}
 const COLORS = ['#E2B65C', '#F6D488', '#FFF3DC', '#B9862E', '#F2CD7E', '#5ED68C', '#FFFFFF']
 
 function makePiece(x, y, angle, speed) {
@@ -77,10 +80,7 @@ export default function Confetti({ originRef, rootId = 'phone-screen' }) {
         ctx.rotate(p.rot)
         if (p.shape === 'coin') {
           ctx.scale(Math.abs(Math.cos(p.flutter)) * 0.8 + 0.2, 1) // spins like a coin seen edge-on
-          ctx.fillStyle = '#C99A3E'
-          ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2); ctx.fill()
-          ctx.fillStyle = '#F6D488'
-          ctx.beginPath(); ctx.arc(0, 0, 3.6, 0, Math.PI * 2); ctx.fill()
+          if (COIN.complete) ctx.drawImage(COIN, -7, -7, 14, 14)
         } else if (p.shape === 'ribbon') {
           ctx.fillStyle = p.color
           ctx.fillRect(-p.w / 2, -p.h / 4, p.w, (p.h / 2) * (0.4 + Math.abs(Math.sin(p.flutter))))
