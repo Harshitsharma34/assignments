@@ -4,7 +4,7 @@ import Confetti from './Confetti.jsx'
 import ScoinGlyph from './ScoinGlyph.jsx'
 
 // The success seal: the 3D Scoin drops in and turns over twice, then keeps flipping between
-// the coin and a green tick face. Rays turn slowly behind it, shockwaves and sparkles go out, then gold confetti.
+// the coin and the gold tick seal. Rays turn slowly behind it, shockwaves and sparkles go out, then gold confetti.
 export default function CoinSeal({ size = 200, className = '', rays = 'rgba(255,255,255,0.16)' }) {
   const seal = useRef(null)
   const reduce = useReducedMotion()
@@ -64,10 +64,11 @@ export default function CoinSeal({ size = 200, className = '', rays = 'rgba(255,
             <span className="absolute inset-0 [backface-visibility:hidden]">
               <ScoinGlyph size={124} className="block" />
             </span>
-            {/* The tick face: a green seal with a gold rim, so it still reads as the same coin. */}
-            <span className="absolute inset-[3px] grid place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#3BE07F,#14B85A_55%,#0B7A3B)] text-white shadow-[inset_0_0_0_4px_rgba(242,205,126,0.85),inset_0_-8px_16px_rgba(0,0,0,0.25)] [backface-visibility:hidden] [transform:rotateY(180deg)]">
-              <svg width="58" height="58" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+            {/* The tick face: the smooth gold seal with a dark tick. */}
+            <span className="absolute inset-[4px] grid place-items-center rounded-full bg-[radial-gradient(circle_at_34%_28%,#FFF0C2,#F2CD7E_38%,#D4A441_70%,#9C7020)] text-[#3A2705] shadow-[0_0_0_7px_rgba(242,205,126,0.16),inset_0_-6px_12px_rgba(110,72,10,0.45),inset_0_4px_8px_rgba(255,255,255,0.5)] [backface-visibility:hidden] [transform:rotateY(180deg)]">
+              <span className="absolute inset-[8px] rounded-full border border-[#8A6116]/35" />
+              <svg width="54" height="54" viewBox="0 0 24 24" fill="none" className="relative">
+                <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
           </span>
