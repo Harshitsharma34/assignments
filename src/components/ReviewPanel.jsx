@@ -6,7 +6,7 @@ const PHASES = [[T.closeup, 'Close-up'], [T.spin, 'Rotation'], [T.form, 'Formati
 const phaseAt = (t) => PHASES.find(([end]) => t <= end)?.[1] ?? 'Wallet'
 
 // Reviewer-only controls, outside the phone. Not part of the product UI.
-export default function ReviewPanel({ stateId, onState, onUpi, onReplay, reduced, onReduced, scrub, onScrub }) {
+export default function ReviewPanel({ stateId, onState, onUpi, onReplay, reduced, onReduced, scrub, onScrub, failNext, onFailNext }) {
   return (
     <aside aria-label="Prototype controls" className="w-full max-w-[390px] rounded-3xl border border-line bg-surface p-5 text-ink lg:w-[300px]">
       <p className="label">Prototype controls</p>
@@ -37,6 +37,10 @@ export default function ReviewPanel({ stateId, onState, onUpi, onReplay, reduced
         <Ctl onClick={onUpi} icon={Send}>Simulate UPI payment</Ctl>
         <Ctl onClick={() => onReplay('full')} icon={Play}>Replay full intro</Ctl>
         <Ctl onClick={() => onReplay('short')} icon={RotateCcw}>Replay repeat-visit intro</Ctl>
+        <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded-xl border border-line px-3 text-[14px]">
+          Next transaction fails
+          <input type="checkbox" checked={failNext} onChange={(e) => onFailNext(e.target.checked)} className="h-4 w-4 accent-[#E2B65C]" />
+        </label>
         <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded-xl border border-line px-3 text-[14px]">
           Reduced motion
           <input type="checkbox" checked={reduced} onChange={(e) => onReduced(e.target.checked)} className="h-4 w-4 accent-[#E2B65C]" />

@@ -4,7 +4,7 @@ import { ArrowUpRight, ChevronLeft, ChevronRight, Landmark, Repeat } from 'lucid
 import AnimatedValue from '../../components/AnimatedValue.jsx'
 import { bankValue, formatRupees, formatScoins, inAppValue } from '../../lib/scoins.js'
 
-const STEP = 50 // 50 Scoins = ₹10 in-app, ₹5 to bank: every stop is a whole rupee either way
+export const STEP = 50 // 50 Scoins = ₹10 in-app, ₹5 to bank: every stop is a whole rupee either way
 const THUMB = 54
 const TICKS = 16
 
@@ -18,6 +18,7 @@ const PICKS = [
   { id: 'all', label: 'All', share: 1 },
 ]
 
+export const snapScoins = (v, max) => snap(v, max)
 const snap = (v, max) => Math.min(max, Math.max(STEP, Math.round(v / STEP) * STEP))
 
 // "What would my Scoins become?" Pick where to use them and how many; the result shows the
@@ -129,7 +130,7 @@ export default function ScoinCalculator({ balance, onSpend, onWithdraw }) {
 
 // Ticked track with a large round thumb and a glowing trail behind it. Pointer drag, tap to
 // jump, and full keyboard support through role="slider".
-function TickSlider({ value, max, onChange, label }) {
+export function TickSlider({ value, max, onChange, label }) {
   const track = useRef(null)
   const dragging = useRef(false)
   const span = Math.max(1, max - STEP)

@@ -79,7 +79,7 @@ function Row({ item, pending, onOpen }) {
         </span>
         <span className="text-right">
           <span className={`block text-[15px] font-medium tnum ${pending ? 'text-ink-2' : isSpend ? 'text-ink' : 'text-gain'}`}>
-            {isSpend ? `Saved ${formatRupees(item.saved)}` : `+${rupees}`}
+            {item.kind === 'withdraw' ? `${formatRupees(item.sent)} to bank` : isSpend ? `Saved ${formatRupees(item.saved)}` : `+${rupees}`}
           </span>
           <span className="mt-0.5 block text-[12px] text-ink-3 tnum">{formatSigned(item.scoins)} Scoins</span>
         </span>
@@ -92,7 +92,7 @@ export function TxDetail({ item }) {
   const isSpend = item.scoins < 0
   const abs = Math.abs(item.scoins)
   const fields = [
-    ['Status', item.pending ? `Pending · expected ${item.expected}` : isSpend ? 'Redeemed' : 'Credited'],
+    ['Status', item.pending ? `Pending · expected ${item.expected}` : item.status ?? (isSpend ? 'Redeemed' : 'Credited')],
     ['Date', item.pending ? '—' : formatWhen(item.at)],
     ['Source', item.source],
     item.multiplier && ['Card multiplier', `${item.multiplier}× on UPI`],
@@ -108,7 +108,9 @@ export function TxDetail({ item }) {
         </p>
         <p className="mt-1 text-[15px] text-ink-2">{item.title}</p>
         <p className="mx-auto mt-3 inline-block rounded-full bg-sunken px-3 py-1.5 text-[13px] text-ink-2 tnum">
-          {isSpend
+          {item.kind === 'withdraw'
+            ? `${formatRupees(item.sent)} to your bank · ${formatScoins(abs)} Scoins at 10 = ₹1`
+            : isSpend
             ? `You saved ${formatRupees(item.saved)} · ${formatScoins(abs)} Scoins at 5 = ₹1`
             : `Worth ${formatRupees(inAppValue(abs))} on SalarySe · ${formatRupees(bankValue(abs))} to bank`}
         </p>

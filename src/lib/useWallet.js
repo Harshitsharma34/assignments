@@ -1,5 +1,9 @@
 import { useMemo, useReducer } from 'react'
 import { USER_STATES } from '../data/userStates.js'
+import { bankValue, inAppValue } from './scoins.js'
+
+const nowStamp = () => new Date().toISOString().slice(0, 16)
+const balanceOf = (state) => state.lifetime.earned - state.lifetime.spent - state.lifetime.withdrawn
 
 function init(stateId) {
   const s = USER_STATES[stateId]
@@ -33,6 +37,33 @@ function reducer(state, action) {
         lifetime: { ...state.lifetime, earned: state.lifetime.earned + reward },
         celebrateKey: state.celebrateKey + 1,
         lastEvent: { type: 'reward', scoins: reward, id: Date.now() },
+      }
+    }
+    case 'redeem': {
+      // Spending in-app: full 5 Scoins = ₹1 value, recorded as a saving.
+      const { scoins, title, source } = action
+      if (scoins <= 0 || scoins > balanceOf(state)) return state
+      const entry = { id: `red-${Date.now()}`, kind: 'redeem', title, source, scoins: -scoins, at: nowStamp(), saved: inAppValue(scoins), fresh: true }
+      return {
+        ...state,
+        activity: [...state.activity, entry],
+        lifetime: { ...state.lifetime, spent: state.lifetime.spent + scoins },
+        lastEvent: { type: 'redeemed', scoins, rupees: inAppValue(scoins), id: Date.now() },
+      }
+    }
+    case 'withdraw': {
+      // Cash-out at 10 Scoins = ₹1. Shown as money sent, never as a loss.
+      const { scoins } = action
+      if (scoins <= 0 || scoins > balanceOf(state)) return state
+      const entry = {
+        id: `wd-${Date.now()}`, kind: 'withdraw', title: 'Withdrawn to bank', source: 'Bank account ••4321', scoins: -scoins,
+        at: nowStamp(), sent: bankValue(scoins), status: 'Processing', fresh: true,
+      }
+      return {
+        ...state,
+        activity: [...state.activity, entry],
+        lifetime: { ...state.lifetime, withdrawn: state.lifetime.withdrawn + scoins },
+        lastEvent: { type: 'withdrawn', scoins, rupees: bankValue(scoins), id: Date.now() },
       }
     }
     default:

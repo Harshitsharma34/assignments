@@ -93,7 +93,7 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
           <>
             {!isEmpty && (
               <Reveal i={i++} className="mt-8">
-                <PopularDeals balance={balance} onSelect={() => navigate('spend')} onSeeAll={() => navigate('spend')} />
+                <PopularDeals balance={balance} onSelect={(d) => navigate('spend', { deal: d.id })} onSeeAll={() => navigate('spend')} />
               </Reveal>
             )}
             <Reveal i={i++} className="mt-6">
