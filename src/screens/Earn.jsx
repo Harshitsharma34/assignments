@@ -174,7 +174,7 @@ export default function Earn({ wallet, onBack, notify }) {
 
 function Card({ icon: Icon, image, title, reward, rupees, detail, action, onAction, badge, proposal, illustrative, children }) {
   return (
-    <li className="rounded-card bg-surface p-4">
+    <li className="shine-border rounded-card bg-surface p-4">
       <div className="flex items-start gap-3">
         {image ? (
           <span

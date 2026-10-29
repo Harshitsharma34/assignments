@@ -8,7 +8,7 @@ export default function NextReward({ upi, onPay, showCardHint, onCardHint, first
   const left = upi.target - upi.done
   const title = first && upi.done === 0 ? `Make ${upi.target} UPI payments` : `${left} more UPI ${left === 1 ? 'payment' : 'payments'}`
   return (
-    <section aria-labelledby="next-reward" className="mx-5 rounded-card bg-surface p-4">
+    <section aria-labelledby="next-reward" className="mx-5 shine-border rounded-card bg-surface p-4">
       <h2 id="next-reward" className="sr-only">{first ? 'Your first reward' : 'Next reward'}</h2>
       <div className="flex items-center gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gold/15" aria-hidden="true">

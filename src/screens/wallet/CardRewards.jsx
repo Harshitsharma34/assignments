@@ -8,7 +8,7 @@ export default function CardRewards({ balance, card, onExplain }) {
   const total = balance + card.cycleEstimate
   const pct = (n) => `${(n / total) * 100}%`
   return (
-    <section aria-labelledby="breakdown" className="mx-5 rounded-card bg-surface p-4">
+    <section aria-labelledby="breakdown" className="mx-5 shine-border rounded-card bg-surface p-4">
       <div className="flex items-center justify-between">
         <h2 id="breakdown" className="text-[15px] font-medium text-ink">Card rewards</h2>
         <button onClick={onExplain} className="-mr-2 inline-flex min-h-[44px] items-center gap-1 px-2 text-[13px] text-ink-2 hover:text-ink">

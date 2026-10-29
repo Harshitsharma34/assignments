@@ -27,7 +27,7 @@ export default function Spend({ balance, selected, initialDeal, dispatch, failNe
       </div>
 
       {covered.length === 0 && balance === 0 ? (
-        <div className="mx-5 mt-8 rounded-card bg-surface p-5 text-center">
+        <div className="mx-5 mt-8 shine-border rounded-card bg-surface p-5 text-center">
           <p className="text-[15px] font-medium text-ink">No Scoins to spend yet</p>
           <p className="mt-1 text-[13px] text-ink-2">Every 5th UPI payment through SalarySe earns a bonus.</p>
           <button onClick={onEarn} className="mt-4 h-10 rounded-full bg-sunken px-4 text-[14px] font-medium text-ink hover:bg-sunken-2">See ways to earn</button>
@@ -63,7 +63,7 @@ function DealList({ title, deals, balance, onOpen }) {
   return (
     <section className="mt-7 px-5" aria-label={title}>
       <h2 className="label">{title}</h2>
-      <ul className="mt-2 overflow-hidden rounded-card bg-surface py-1">
+      <ul className="mt-2 overflow-hidden shine-border rounded-card bg-surface py-1">
         {deals.map((d) => (
           <li key={d.id}>
             <button onClick={() => onOpen(d)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.03]">

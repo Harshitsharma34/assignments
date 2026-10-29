@@ -127,7 +127,7 @@ function OtherWays({ onOpen }) {
   return (
     <section aria-labelledby="other-ways" className="px-5">
       <h2 id="other-ways" className="label">Other ways to earn</h2>
-      <ul className="mt-3 overflow-hidden rounded-card bg-surface">
+      <ul className="mt-3 overflow-hidden shine-border rounded-card bg-surface">
         {ways.map(({ icon: Icon, title, sub }, i) => (
           <li key={title} className={i ? 'border-t border-line' : ''}>
             <button onClick={onOpen} className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left hover:bg-sunken">

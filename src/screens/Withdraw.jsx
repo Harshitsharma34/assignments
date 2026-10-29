@@ -63,14 +63,14 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
       </header>
 
       {max < STEP ? (
-        <div className="mx-5 mt-6 rounded-card bg-surface p-5 text-center">
+        <div className="mx-5 mt-6 shine-border rounded-card bg-surface p-5 text-center">
           <p className="text-[15px] font-medium text-ink">No Scoins to withdraw yet</p>
           <p className="mt-1 text-[13px] text-ink-2">Withdrawals start from {STEP} Scoins ({formatRupees(bankValue(STEP))}).</p>
           <button onClick={onEarn} className="mt-4 h-10 rounded-full bg-sunken px-4 text-[14px] font-medium text-ink hover:bg-sunken-2">See ways to earn</button>
         </div>
       ) : (
         <div className="px-5">
-          <section className="mt-5 rounded-card bg-surface p-4" aria-label="Transfer amount">
+          <section className="mt-5 shine-border rounded-card bg-surface p-4" aria-label="Transfer amount">
             <p className="text-[13px] text-ink-3">You'll receive</p>
             <p className="mt-0.5 text-[40px] font-semibold tracking-[-0.03em] text-ink tnum">
               <AnimatedValue value={rupees} format={formatRupees} duration={0.35} />
@@ -227,7 +227,7 @@ function Otp({ summary, failNext, onFailUsed, onVerified }) {
 function Processing({ rupees, to }) {
   return (
     <div className="flex min-h-full flex-col px-5 pt-16" role="status" aria-live="polite">
-      <div className="rounded-card bg-surface p-6 text-center">
+      <div className="shine-border rounded-card bg-surface p-6 text-center">
         <Loader2 size={40} className="mx-auto text-gold motion-safe:animate-spin" aria-hidden="true" />
         <p className="mt-4 text-[20px] font-semibold text-ink tnum">Processing transfer of {formatRupees(rupees)}</p>
         <div className="mt-5 border-t border-line pt-4 text-left">

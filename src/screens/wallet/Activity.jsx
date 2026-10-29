@@ -16,7 +16,7 @@ export function RecentActivity({ rows, pending, onOpen, onSeeAll }) {
           See all
         </button>
       </div>
-      <ul className="mt-1 overflow-hidden rounded-card bg-surface py-1">
+      <ul className="mt-1 overflow-hidden shine-border rounded-card bg-surface py-1">
         <AnimatePresence initial={false}>
           {recent.map((r) => <Row key={r.id} item={r} pending={r.pending} onOpen={() => onOpen(r)} />)}
         </AnimatePresence>

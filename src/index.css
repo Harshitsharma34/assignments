@@ -32,6 +32,28 @@ body { margin: 0; background: #0B0B0B; color: rgb(var(--ink)); font-family: "Not
 .hero-rays { animation: rays-drift 9s ease-in-out infinite alternate; transform-origin: 50% 0; }
 @media (prefers-reduced-motion: reduce) { .hero-rays { animation: none; } }
 
+/* Shiny card edge: a 1px gradient ring (gold highlight, cool sheen, gold again) that slowly
+   travels around the card. Drawn with a masked pseudo-element so the card keeps its own fill. */
+@property --shine-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.shine-border { position: relative; isolation: isolate; }
+.shine-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: conic-gradient(from var(--shine-angle),
+    rgba(246, 212, 140, 0.75) 0deg, rgba(255, 255, 255, 0.10) 70deg, rgba(255, 255, 255, 0.04) 150deg,
+    rgba(226, 182, 92, 0.45) 200deg, rgba(255, 255, 255, 0.06) 260deg, rgba(246, 212, 140, 0.75) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: shine-spin 9s linear infinite;
+}
+@keyframes shine-spin { to { --shine-angle: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .shine-border::before { animation: none; --shine-angle: 135deg; } }
+
 @layer utilities {
   .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
   .label { @apply text-[17px] font-semibold text-ink; }

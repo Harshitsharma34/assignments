@@ -44,7 +44,7 @@ export default function ScoinCalculator({ balance, onSpend, onWithdraw }) {
   }, [scoins, spend, value])
 
   return (
-    <section aria-labelledby="calc-title" className="mx-5 overflow-hidden rounded-card bg-surface">
+    <section aria-labelledby="calc-title" className="mx-5 overflow-hidden shine-border rounded-card bg-surface">
       <h2 id="calc-title" className="sr-only">Scoin value calculator</h2>
       <div className="px-4 pb-4 pt-4">
         <div role="tablist" aria-label="Where to use Scoins" className="grid grid-cols-2 rounded-full bg-sunken p-1">

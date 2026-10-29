@@ -46,7 +46,7 @@ function DealCard({ deal, balance, onSelect }) {
   return (
     <button
       onClick={onSelect}
-      className="relative flex h-[164px] w-full flex-col overflow-hidden rounded-card bg-surface p-4 text-left transition-colors hover:bg-sunken"
+      className="relative flex h-[164px] w-full flex-col overflow-hidden shine-border rounded-card bg-surface p-4 text-left transition-colors hover:bg-sunken"
       style={deal.logo ? { backgroundImage: `radial-gradient(120% 80% at 100% 0%, rgba(${BRAND_TINT[deal.logo]},0.30), rgba(${BRAND_TINT[deal.logo]},0.06) 55%, transparent 80%)` } : { backgroundImage: 'radial-gradient(120% 80% at 100% 0%, rgba(226,182,92,0.22), transparent 75%)' }}
     >
       {/* Line artwork stands in for product photography. */}
