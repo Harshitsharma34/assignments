@@ -182,10 +182,10 @@ for (const pg of pages) {
       ${['wallet-active-fold.png', 'earn-active.png', 'withdraw-6-success-confetti.png'].map((n, i) => `<div class="phone" style="left:${590 + i * 168}px;top:${110 + (i % 2) * 40}px;width:160px;height:346px;border-radius:20px"><img src="${S(n)}" /></div>`).join('')}
       <div class="flows" style="position:absolute;left:64px;right:64px;top:545px">
         <h3>Core flows: value within 3 taps</h3>
-        <div class="flow"><em>Spend</em> Wallet <i>→</i> a deal you can cover <i>→</i> review: you save ₹, Scoins used, balance after <i>→</i> confirm <i>→</i> voucher + balance left</div>
-        <div class="flow"><em>Withdraw</em> Wallet <i>→</i> amount in ₹ (in-app value shown) <i>→</i> UPI ID checked inline <i>→</i> swipe <i>→</i> OTP <i>→</i> receipt</div>
-        <div class="flow"><em>Earn</em> Wallet <i>→</i> next reward <i>→</i> pay via UPI <i>→</i> progress moves <i>→</i> reward lands with a toast</div>
-        <div class="flow"><em>Trust</em> Any history row <i>→</i> what it was, the rule that earned it, the running balance</div>
+        <div class="flow"><em>Spend</em> Wallet <i>→</i> pick a deal <i>→</i> review saving <i>→</i> confirm <i>→</i> voucher</div>
+        <div class="flow"><em>Withdraw</em> Wallet <i>→</i> enter ₹ amount <i>→</i> UPI ID <i>→</i> swipe <i>→</i> OTP <i>→</i> receipt</div>
+        <div class="flow"><em>Earn</em> Wallet <i>→</i> next reward <i>→</i> pay via UPI <i>→</i> reward lands</div>
+        <div class="flow"><em>Trust</em> History row <i>→</i> source, rule and balance after</div>
       </div>
       <p style="position:absolute;left:64px;bottom:40px;font-size:12px;margin:0">Interactive prototype: claude.ai/artifact/VrxVM3azJxau7ZQbx6ibTs · All earn amounts, deals and card figures are illustrative.</p>`
     doc.appendChild(el); folio++; continue
@@ -194,20 +194,20 @@ for (const pg of pages) {
     const el = textPage('Deliverable 1 · Problem analysis', 'Why Scoins feel useless today', `
       <div class="cols" style="grid-template-columns: 1.05fr 1fr">
         <div>
-          <p style="margin-top:0">A Scoin balance is a number with no meaning. The wallet never says what 1,500 Scoins are worth, offers no Spend, Withdraw or Earn action, and leaves a zero balance as a decorative coin over an empty list. The one fact that would change behaviour, that Scoins are worth 2× inside SalarySe, appears only in a cash-out popup with guilt copy, after the user has decided to leave.</p>
+          <p style="margin-top:0">Users hold Scoins but can’t tell what they’re worth, so they don’t use them. The fact that matters most, that Scoins are worth 2× inside SalarySe, appears only after they choose to cash out.</p>
           <h3 style="margin-top:14px">Problems</h3>
           <ol>
-            <li><strong>Value is hidden.</strong> The balance shows as points with no rupee figure.</li>
-            <li><strong>Two rates, no comparison.</strong> Withdrawing costs half the value, and users only find out afterwards.</li>
-            <li><strong>Zero balance is a dead end.</strong> New users see “0” and no way to earn.</li>
-            <li><strong>Earning is invisible.</strong> No progress toward the next reward, so no reason to come back.</li>
-            <li><strong>Low trust.</strong> No receipts and no history explaining where Scoins came from or went.</li>
+            <li><strong>Value is hidden:</strong> points, no rupee figure.</li>
+            <li><strong>No rate comparison:</strong> users learn cash-out halves the value too late.</li>
+            <li><strong>Zero is a dead end:</strong> new users see “0” and no way to earn.</li>
+            <li><strong>Earning is invisible:</strong> no progress, no reason to return.</li>
+            <li><strong>Low trust:</strong> no receipts, no clear history.</li>
           </ol>
           <h3 style="margin-top:14px">What I fixed first</h3>
           <ol>
-            <li><strong>Trust:</strong> every amount carries its unit and ₹ value; the ledger reconciles.</li>
-            <li><strong>Rupee-first value</strong> with the bank value beside it.</li>
-            <li><strong>A next step in every state.</strong></li>
+            <li><strong>Trust:</strong> every amount shows its unit and ₹ value.</li>
+            <li><strong>Rupees first,</strong> bank value beside it.</li>
+            <li><strong>A next step</strong> in every state.</li>
           </ol>
         </div>
         <div>
