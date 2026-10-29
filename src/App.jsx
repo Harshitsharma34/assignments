@@ -171,12 +171,6 @@ export default function App() {
             onState={setUserState}
             onUpi={() => wallet.dispatch({ type: 'upi' })}
             onReplay={replay}
-            scrub={intro.scrub}
-            onScrub={(t) => setIntro((i) => ({ ...i, scrub: t }))}
-            reduced={reduced}
-            onReduced={onReduced}
-            failNext={failNext}
-            onFailNext={setFailNext}
           />
         </div>
       </div>
