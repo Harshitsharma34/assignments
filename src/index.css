@@ -19,6 +19,9 @@
   --gold: 226 182 92;
   --gold-hi: 242 205 126;
   --gain: 94 214 140;
+  --brand: 61 65 250;      /* SalarySe blue, sampled from the product */
+  --brand-hi: 92 96 255;
+  --success: 25 118 67;    /* SalarySe success green */
 }
 
 html, body, #root { height: 100%; }

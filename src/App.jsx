@@ -51,7 +51,7 @@ export default function App() {
     if (ev.type === 'redeemed') {
       notify({ icon: <ScoinGlyph size={16} />, text: `${formatRupees(ev.rupees)} saved · ${ev.scoins.toLocaleString('en-IN')} Scoins used` })
     } else if (ev.type === 'withdrawn') {
-      notify({ text: `${formatRupees(ev.rupees)} withdrawal requested` })
+      notify({ text: `${formatRupees(ev.rupees)} sent to your bank` })
     } else if (ev.type === 'reward') {
       notify({ icon: <ScoinGlyph size={16} />, text: `+${ev.scoins} Scoins added · ${formatRupees(inAppValue(ev.scoins))} to spend` })
       scroller.current?.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })
@@ -84,7 +84,7 @@ export default function App() {
     <MotionConfig reducedMotion={reduced ? 'always' : 'never'}>
       <div className="flex min-h-full flex-col items-center gap-6 py-0 sm:py-8 lg:flex-row lg:items-start lg:justify-center lg:gap-10">
         <div id="phone-screen" className="relative h-[100dvh] w-full overflow-hidden bg-page sm:h-[844px] sm:w-[390px] sm:rounded-[48px] sm:border sm:border-line sm:shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
-          <StatusBar />
+          <StatusBar clear={route === 'withdraw'} />
 
           <motion.div
             ref={scroller}
@@ -139,6 +139,7 @@ export default function App() {
                     onBack={() => setRoute('wallet')}
                     onSpend={() => navigate('spend')}
                     onEarn={() => navigate('earn')}
+                    notify={notify}
                   />
                 ) : (
                   <Earn wallet={wallet} onBack={() => setRoute('wallet')} notify={notify} />
@@ -183,9 +184,10 @@ export default function App() {
   )
 }
 
-function StatusBar() {
+function StatusBar({ clear }) {
+  // Clear over SalarySe's blue header on the transfer screen; a light fade everywhere else.
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex h-11 items-center justify-between bg-gradient-to-b from-page/55 to-transparent px-8 text-[15px] font-semibold text-ink" aria-hidden="true">
+    <div className={`pointer-events-none absolute inset-x-0 top-0 z-40 flex h-11 items-center justify-between px-8 text-[15px] font-semibold text-ink ${clear ? '' : 'bg-gradient-to-b from-page/55 to-transparent'}`} aria-hidden="true">
       <span>9:41</span>
       <span className="flex items-center gap-1.5">
         <span className="flex items-end gap-[2px]">{[5, 7, 9, 11].map((h) => <span key={h} className="w-[3px] rounded-sm bg-ink" style={{ height: h }} />)}</span>

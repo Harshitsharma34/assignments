@@ -174,7 +174,7 @@ for (const pg of pages) {
         <p style="margin:0"><strong>The lever:</strong> 5 Scoins = ₹1 spent on SalarySe, 10 Scoins = ₹1 to bank. Spending in-app is worth 2×, and almost nobody knew.</p>
         <p style="margin-top:10px"><strong>The answer:</strong> lead with rupees, make the better rate the default without hiding the other, and give every state a next step.</p>
       </div>
-      ${['wallet-active-fold.png', 'earn-active.png', 'withdraw-success-confetti.png'].map((n, i) => `<div class="phone" style="left:${590 + i * 168}px;top:${110 + (i % 2) * 40}px;width:160px;height:346px;border-radius:20px"><img src="${S(n)}" /></div>`).join('')}
+      ${['wallet-active-fold.png', 'earn-active.png', 'withdraw-6-success-confetti.png'].map((n, i) => `<div class="phone" style="left:${590 + i * 168}px;top:${110 + (i % 2) * 40}px;width:160px;height:346px;border-radius:20px"><img src="${S(n)}" /></div>`).join('')}
       <p style="position:absolute;left:64px;bottom:40px;font-size:12px;margin:0">Interactive prototype: claude.ai/artifact/VrxVM3azJxau7ZQbx6ibTs · All earn amounts, deals and card figures are illustrative.</p>`
     doc.appendChild(el); folio++; continue
   }
@@ -260,11 +260,12 @@ for (const pg of pages) {
     ])); continue
   }
   if (pg.kind === 'withdraw') {
-    doc.appendChild(strip('Redemption · withdraw', 'Cash out without guilt, and without hiding the better rate', [
-      { img: 'withdraw-amount.png', title: 'Amount', text: '“You’ll receive ₹150” at 10 = ₹1, with “Worth ₹300 on SalarySe” as information.' },
-      { img: 'withdraw-review.png', title: 'Review', text: 'Every figure before confirming: rupees, Scoins, rate, account, balance after.' },
-      { img: 'withdraw-error.png', title: 'Error', text: 'Plain words, what did not happen (“No Scoins were withdrawn”) and one way forward.' },
-      { img: 'withdraw-success-confetti.png', title: 'Requested', text: 'Badge springs in, tick draws, confetti and gold coins burst, the amount counts up. Repeats the exact amount and account.' },
+    doc.appendChild(strip('Redemption · withdraw', 'SalarySe’s transfer flow, kept, with the money made clear', [
+      { img: 'withdraw-1-amount.png', title: 'Amount and UPI ID', text: 'SalarySe’s blue header and 10 = ₹1 pill stay. Added: exact rupees, and the in-app value as information.' },
+      { img: 'withdraw-2-upi-check.png', title: 'Validated before the swipe', text: 'The swipe stays locked until the UPI ID looks real, with the fix in plain words.' },
+      { img: 'withdraw-3-otp.png', title: 'OTP', text: 'Their six-digit sheet and resend timer, plus a one-line summary of what is being confirmed.' },
+      { img: 'withdraw-5-processing.png', title: 'Processing', text: '“Please don’t go back” stays. The amount and destination stay on screen.' },
+      { img: 'withdraw-6-success-confetti.png', title: 'Success', text: 'Their green card, with confetti, gold coins and a count-up; Scoins used, balance left, transaction ID.' },
     ])); continue
   }
   if (pg.kind === 'model') {
@@ -303,7 +304,11 @@ for (const pg of pages) {
           <ul>
             <li>Reduced motion: the intro, beam, confetti and celebrations become calm static states.</li>
             <li>One screen-reader announcement once the calculator settles, not one per drag step.</li>
-            <li>44px touch targets; keyboard support for the slider and the coins.</li>
+            <li>44px touch targets; keyboard support for the slider, the coins and the swipe-to-transfer control.</li>
+          </ul>
+          <h3 style="margin-top:16px">Brand</h3>
+          <ul>
+            <li>SalarySe blue (#3D41FA) carries money movement: the transfer header, swipe and OTP verify. Gold stays the Scoin colour. The success green (#197643) is kept from the product.</li>
           </ul>
         </div>
         <div>

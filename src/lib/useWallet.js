@@ -53,11 +53,11 @@ function reducer(state, action) {
     }
     case 'withdraw': {
       // Cash-out at 10 Scoins = ₹1. Shown as money sent, never as a loss.
-      const { scoins } = action
+      const { scoins, to = 'Bank account', ref } = action
       if (scoins <= 0 || scoins > balanceOf(state)) return state
       const entry = {
-        id: `wd-${Date.now()}`, kind: 'withdraw', title: 'Withdrawn to bank', source: 'Bank account ••4321', scoins: -scoins,
-        at: nowStamp(), sent: bankValue(scoins), status: 'Processing', fresh: true,
+        id: ref ?? `wd-${Date.now()}`, kind: 'withdraw', title: 'Withdrawn to bank', source: `UPI · ${to}`, scoins: -scoins,
+        at: nowStamp(), sent: bankValue(scoins), status: 'Transferred', fresh: true,
       }
       return {
         ...state,

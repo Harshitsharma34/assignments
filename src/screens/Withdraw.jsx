@@ -1,32 +1,66 @@
-import { useState } from 'react'
-import { Landmark } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
+import { ArrowLeft, Check, Loader2, Share2, X } from 'lucide-react'
 import AnimatedValue from '../components/AnimatedValue.jsx'
-import Sheet from '../components/Sheet.jsx'
+import Confetti from '../components/Confetti.jsx'
 import ScoinGlyph from '../components/ScoinGlyph.jsx'
+import Sheet from '../components/Sheet.jsx'
+import SwipeToConfirm from '../components/SwipeToConfirm.jsx'
 import { bankValue, formatRupees, formatScoins, inAppValue } from '../lib/scoins.js'
-import { ErrorView, PrimaryButton, Rows, ScreenHeader, SuccessView, useConfirmFlow } from './flow.jsx'
 import { STEP, TickSlider, snapScoins } from './wallet/ScoinCalculator.jsx'
 
-const ACCOUNT = '••4321' // illustrative linked account
+// Withdraw follows SalarySe's existing transfer flow: amount and UPI ID, swipe to transfer,
+// OTP, processing, then a success card. Added on top: the exact rupees at 10 Scoins = ₹1,
+// the in-app value shown as information, validation before the swipe unlocks, and a
+// reconciled balance afterwards.
+const PHONE = '+91 98•••••828' // illustrative
 const PICKS = [['25%', 0.25], ['50%', 0.5], ['All', 1]]
+const UPI_RE = /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/
 
-// Withdraw: choose an amount, see the exact rupees at 10 Scoins = ₹1, confirm.
-// The in-app value is shown alongside as information, not as a warning.
-export default function Withdraw({ balance, selected, dispatch, failNext, onFailUsed, onBack, onSpend, onEarn }) {
+export default function Withdraw({ balance, selected, dispatch, failNext, onFailUsed, onBack, onSpend, onEarn, notify }) {
   const max = Math.floor(balance / STEP) * STEP
   const [scoins, setScoins] = useState(() => (max >= STEP ? snapScoins(selected ?? max, max) : 0))
-  const [review, setReview] = useState(false)
-  const flow = useConfirmFlow({ failNext, onFailUsed })
+  const [upi, setUpi] = useState('')
+  const [touched, setTouched] = useState(false)
+  const [step, setStep] = useState('form') // form | otp | processing | success
+  const [receipt, setReceipt] = useState(null)
   const rupees = bankValue(scoins)
+  const upiValid = UPI_RE.test(upi.trim())
+  const ready = max >= STEP && scoins >= STEP && upiValid
 
-  const close = () => {
-    setReview(false)
-    if (flow.status !== 'loading') flow.reset()
+  const finish = () => {
+    const ref = `SCN${Date.now().toString().slice(-9)}`
+    setReceipt({ ref, at: new Date(), scoins, rupees, to: upi.trim(), left: balance - scoins })
+    setStep('processing')
+    setTimeout(() => {
+      dispatch({ type: 'withdraw', scoins, to: upi.trim(), ref })
+      setStep('success')
+    }, 1700)
   }
 
+  if (step === 'processing') return <Processing rupees={receipt.rupees} to={receipt.to} />
+  if (step === 'success') return <Success receipt={receipt} onClose={onBack} notify={notify} />
+
   return (
-    <div className="min-h-full pb-28 pt-11">
-      <ScreenHeader title="Withdraw to bank" onBack={onBack} />
+    <div className="min-h-full pb-10">
+      {/* SalarySe's blue header: the page title, the balance and the bank rate. */}
+      <header className="bg-brand px-4 pb-5 pt-12 text-white">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} aria-label="Back to wallet" className="grid h-10 w-10 place-items-center rounded-full bg-white/15 hover:bg-white/25">
+            <ArrowLeft size={19} />
+          </button>
+          <h1 className="text-[16px] font-semibold">Transfer Scoins to bank account</h1>
+        </div>
+        <div className="mt-5 flex items-end justify-between">
+          <div>
+            <p className="text-[12px] text-white/75">Current balance</p>
+            <p className="mt-0.5 flex items-center gap-1.5 text-[18px] font-semibold tnum"><ScoinGlyph size={17} /> {formatScoins(balance)}</p>
+          </div>
+          <span className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[14px] font-semibold tnum">
+            <ScoinGlyph size={15} /> 10 = ₹1
+          </span>
+        </div>
+      </header>
 
       {max < STEP ? (
         <div className="mx-5 mt-6 rounded-card bg-surface p-5 text-center">
@@ -35,26 +69,20 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
           <button onClick={onEarn} className="mt-4 h-10 rounded-full bg-sunken px-4 text-[14px] font-medium text-ink hover:bg-sunken-2">See ways to earn</button>
         </div>
       ) : (
-        <>
-          <section className="mx-5 mt-4 rounded-card bg-surface p-4" aria-label="Withdrawal amount">
-            <p className="text-center text-[13px] text-ink-3">You'll receive</p>
-            <p className="mt-1 text-center text-[44px] font-semibold tracking-[-0.03em] text-ink tnum">
+        <div className="px-5">
+          <section className="mt-5 rounded-card bg-surface p-4" aria-label="Transfer amount">
+            <p className="text-[13px] text-ink-3">You'll receive</p>
+            <p className="mt-0.5 text-[40px] font-semibold tracking-[-0.03em] text-ink tnum">
               <AnimatedValue value={rupees} format={formatRupees} duration={0.35} />
             </p>
-            <p className="flex items-center justify-center gap-1.5 text-[13px] text-ink-2 tnum">
-              <ScoinGlyph size={13} /> {formatScoins(scoins)} Scoins at 10 Scoins = ₹1
-            </p>
-            <TickSlider value={scoins} max={max} onChange={setScoins} label="Scoins to withdraw" />
-            <div className="mt-2 flex justify-center gap-1" role="group" aria-label="Quick amounts">
+            <p className="flex items-center gap-1.5 text-[13px] text-ink-2 tnum"><ScoinGlyph size={13} /> {formatScoins(scoins)} Scoins at 10 Scoins = ₹1</p>
+            <TickSlider value={scoins} max={max} onChange={setScoins} label="Scoins to transfer" />
+            <div className="mt-1 flex gap-1" role="group" aria-label="Quick amounts">
               {PICKS.map(([label, share]) => {
                 const v = snapScoins(max * share, max)
                 return (
-                  <button
-                    key={label}
-                    onClick={() => setScoins(v)}
-                    aria-pressed={v === scoins}
-                    className={`h-9 min-w-[64px] rounded-full px-3 text-[13px] tnum ${v === scoins ? 'bg-sunken font-semibold text-ink' : 'text-ink-3 hover:text-ink'}`}
-                  >
+                  <button key={label} onClick={() => setScoins(v)} aria-pressed={v === scoins}
+                    className={`h-9 min-w-[60px] rounded-full px-3 text-[13px] tnum ${v === scoins ? 'bg-sunken font-semibold text-ink' : 'text-ink-3 hover:text-ink'}`}>
                     {label}
                   </button>
                 )
@@ -62,57 +90,211 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
             </div>
           </section>
 
-          <button onClick={onSpend} className="mx-5 mt-3 flex w-[calc(100%-40px)] items-center justify-between rounded-2xl px-4 py-3 text-left text-[13px] text-ink-2 hover:bg-surface">
+          <button onClick={onSpend} className="mt-2 flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-[13px] text-ink-2 hover:bg-surface">
             <span className="tnum">Worth <span className="font-semibold text-accent">{formatRupees(inAppValue(scoins))}</span> on SalarySe</span>
             <span className="text-accent">Spend instead</span>
           </button>
 
-          <section className="mx-5 mt-3 flex items-center gap-3 rounded-card bg-surface p-4" aria-label="Destination">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-sunken" aria-hidden="true"><Landmark size={17} className="text-ink-2" /></span>
-            <span className="flex-1">
-              <span className="block text-[15px] text-ink">Bank account {ACCOUNT}</span>
-              <span className="block text-[12px] text-ink-3">Linked account (illustrative)</span>
-            </span>
+          <section className="mt-2">
+            <label htmlFor="upi" className="text-[13px] text-ink-3">Your UPI ID</label>
+            <input
+              id="upi"
+              value={upi}
+              onChange={(e) => setUpi(e.target.value)}
+              onBlur={() => setTouched(true)}
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              placeholder="name@bank"
+              aria-invalid={touched && !upiValid ? true : undefined}
+              aria-describedby="upi-help"
+              className={`mt-1.5 h-12 w-full rounded-xl border bg-surface px-4 text-[16px] text-ink placeholder:text-ink-3 focus:outline-none ${touched && !upiValid ? 'border-danger' : 'border-line focus:border-brand'}`}
+            />
+            <p id="upi-help" className={`mt-1.5 text-[12px] ${touched && !upiValid ? 'text-danger' : 'text-ink-3'}`}>
+              {touched && !upiValid ? 'That doesn’t look like a UPI ID. It should look like name@bank.' : 'Use the UPI ID linked to your bank account.'}
+            </p>
           </section>
 
-          <div className="sticky bottom-0 mt-6 bg-gradient-to-t from-page via-page to-transparent px-5 pb-6 pt-6">
-            <PrimaryButton tone="light" onClick={() => setReview(true)}>Withdraw {formatRupees(rupees)}</PrimaryButton>
+          <div className="mt-6">
+            <SwipeToConfirm label={`Swipe to get ${formatRupees(rupees)}`} disabled={!ready} onConfirm={() => setStep('otp')} />
           </div>
-        </>
+        </div>
       )}
 
-      <Sheet open={review} onClose={close} title={flow.status === 'success' ? 'Requested' : 'Review withdrawal'}>
-        {flow.status === 'success' ? (
-          <SuccessView
-            amount={rupees}
-            format={formatRupees}
-            suffix="on its way"
-            lines={[`To bank account ${ACCOUNT}`, `${formatScoins(scoins)} Scoins withdrawn · ${formatScoins(balance)} left`]}
-            onDone={() => { setReview(false); onBack() }}
-          >
-            <p className="mx-auto mt-4 inline-block rounded-full bg-sunken px-3 py-1.5 text-[13px] text-ink-2">Status: processing (illustrative)</p>
-          </SuccessView>
-        ) : flow.status === 'error' ? (
-          <ErrorView message="No Scoins were withdrawn. Check your connection and try again." onRetry={flow.reset} />
-        ) : (
-          <div>
-            <Rows
-              rows={[
-                ['You receive', formatRupees(rupees), 'accent'],
-                ['Scoins withdrawn', `${formatScoins(scoins)} Scoins`],
-                ['Rate', '10 Scoins = ₹1'],
-                ['To', `Bank account ${ACCOUNT}`],
-                ['Balance after', `${formatScoins(balance - scoins)} Scoins · ${formatRupees(inAppValue(balance - scoins))} to spend`],
-              ]}
-            />
-            <div className="mt-5">
-              <PrimaryButton tone="light" loading={flow.status === 'loading'} onClick={() => flow.run(() => dispatch({ type: 'withdraw', scoins }))}>
-                {flow.status === 'loading' ? 'Confirming…' : `Confirm ${formatRupees(rupees)} withdrawal`}
-              </PrimaryButton>
-            </div>
-          </div>
-        )}
+      <Sheet open={step === 'otp'} onClose={() => setStep('form')} title="Enter OTP to confirm">
+        <Otp
+          summary={`${formatRupees(rupees)} · ${formatScoins(scoins)} Scoins to ${upi.trim()}`}
+          failNext={failNext}
+          onFailUsed={onFailUsed}
+          onVerified={finish}
+        />
       </Sheet>
+    </div>
+  )
+}
+
+function Otp({ summary, failNext, onFailUsed, onVerified }) {
+  const [digits, setDigits] = useState(Array(6).fill(''))
+  const [seconds, setSeconds] = useState(30)
+  const [status, setStatus] = useState('idle') // idle | checking | error
+  const refs = useRef([])
+  const code = digits.join('')
+
+  useEffect(() => {
+    if (seconds <= 0) return
+    const t = setTimeout(() => setSeconds((s) => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [seconds])
+
+  const set = (i, v) => {
+    const next = [...digits]
+    next[i] = v
+    setDigits(next)
+    if (status === 'error') setStatus('idle')
+  }
+  const onChange = (i, e) => {
+    const v = e.target.value.replace(/\D/g, '')
+    if (v.length > 1) {
+      // Paste or autofill: spread across the boxes.
+      const next = [...digits]
+      v.slice(0, 6 - i).split('').forEach((d, k) => (next[i + k] = d))
+      setDigits(next)
+      refs.current[Math.min(5, i + v.length)]?.focus()
+      return
+    }
+    set(i, v)
+    if (v && i < 5) refs.current[i + 1]?.focus()
+  }
+  const onKeyDown = (i, e) => {
+    if (e.key === 'Backspace' && !digits[i] && i > 0) refs.current[i - 1]?.focus()
+  }
+  const verify = () => {
+    setStatus('checking')
+    setTimeout(() => {
+      if (failNext) {
+        onFailUsed?.()
+        setStatus('error')
+        setDigits(Array(6).fill(''))
+        refs.current[0]?.focus()
+      } else {
+        onVerified()
+      }
+    }, 900)
+  }
+
+  return (
+    <div>
+      <p className="text-[13px] text-ink-2">OTP sent to {PHONE}</p>
+      <p className="mt-1 text-[13px] text-ink-3 tnum">{summary}</p>
+      <div className="mt-5 grid grid-cols-6 gap-2" role="group" aria-label="One-time password">
+        {digits.map((d, i) => (
+          <input
+            key={i}
+            ref={(el) => (refs.current[i] = el)}
+            value={d}
+            onChange={(e) => onChange(i, e)}
+            onKeyDown={(e) => onKeyDown(i, e)}
+            inputMode="numeric"
+            autoComplete={i === 0 ? 'one-time-code' : 'off'}
+            maxLength={6}
+            aria-label={`Digit ${i + 1}`}
+            autoFocus={i === 0}
+            className={`h-12 w-full rounded-xl border bg-sunken text-center text-[18px] font-semibold text-ink tnum focus:outline-none ${status === 'error' ? 'border-danger' : d ? 'border-ink/40' : 'border-line focus:border-brand'}`}
+          />
+        ))}
+      </div>
+      <p className={`mt-3 text-center text-[13px] ${status === 'error' ? 'text-danger' : 'text-ink-3'}`} role={status === 'error' ? 'alert' : undefined}>
+        {status === 'error'
+          ? 'That OTP didn’t match. No Scoins were withdrawn. Try again.'
+          : seconds > 0
+          ? `Resend OTP in 00:${String(seconds).padStart(2, '0')}`
+          : <button onClick={() => setSeconds(30)} className="font-medium text-brand-hi">Resend OTP</button>}
+      </p>
+      <p className="mt-1 text-center text-[11px] text-ink-3">Prototype: any 6 digits work.</p>
+      <button
+        onClick={verify}
+        disabled={code.length < 6 || status === 'checking'}
+        className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-[15px] font-semibold text-white transition-colors hover:bg-brand-hi disabled:bg-sunken disabled:text-ink-3"
+      >
+        {status === 'checking' && <Loader2 size={17} className="motion-safe:animate-spin" aria-hidden="true" />}
+        {status === 'checking' ? 'Verifying…' : 'Verify and proceed'}
+      </button>
+    </div>
+  )
+}
+
+function Processing({ rupees, to }) {
+  return (
+    <div className="flex min-h-full flex-col px-5 pt-16" role="status" aria-live="polite">
+      <div className="rounded-card bg-surface p-6 text-center">
+        <Loader2 size={40} className="mx-auto text-gold motion-safe:animate-spin" aria-hidden="true" />
+        <p className="mt-4 text-[20px] font-semibold text-ink tnum">Processing transfer of {formatRupees(rupees)}</p>
+        <div className="mt-5 border-t border-line pt-4 text-left">
+          <p className="text-[12px] text-ink-3">To</p>
+          <p className="text-[15px] font-medium text-ink">{to}</p>
+        </div>
+      </div>
+      <p className="mt-4 text-center text-[13px] text-ink-3">Please don’t go back or close the app.</p>
+    </div>
+  )
+}
+
+function Success({ receipt, onClose, notify }) {
+  const badge = useRef(null)
+  const when = useMemo(
+    () => receipt.at.toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }),
+    [receipt.at],
+  )
+  const rise = (i) => ({ initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.4 + i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] } })
+  return (
+    <div className="min-h-full px-5 pb-8 pt-12">
+      <div className="flex items-center justify-between">
+        <button onClick={onClose} aria-label="Close" className="grid h-10 w-10 place-items-center rounded-full bg-sunken text-ink hover:bg-sunken-2"><X size={19} /></button>
+        <button onClick={() => notify?.({ text: 'Sharing opens outside this prototype' })} aria-label="Share receipt" className="grid h-10 w-10 place-items-center rounded-full bg-sunken text-ink hover:bg-sunken-2"><Share2 size={17} /></button>
+      </div>
+
+      {/* SalarySe's green success card, with the celebration on top. */}
+      <motion.section
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+        className="relative mt-5 overflow-hidden rounded-[24px] bg-[linear-gradient(180deg,rgb(var(--success))_0%,#14583A_100%)] p-5 text-white"
+        role="status"
+      >
+        <Confetti originRef={badge} />
+        <div ref={badge} className="relative mx-auto mt-3 h-20 w-20">
+          {[0, 1].map((i) => (
+            <motion.span key={i} aria-hidden="true" className="absolute inset-0 rounded-full border-2 border-white/60"
+              initial={{ scale: 0.8, opacity: 0.7 }} animate={{ scale: 2, opacity: 0 }} transition={{ delay: 0.15 + i * 0.22, duration: 1.1, ease: 'easeOut' }} />
+          ))}
+          <motion.span aria-hidden="true" className="absolute inset-0 grid place-items-center rounded-full bg-[#22C55E] shadow-[0_0_36px_rgba(34,197,94,0.55)]"
+            initial={{ scale: 0, rotate: -25 }} animate={{ scale: [0, 1.18, 1], rotate: 0 }} transition={{ duration: 0.6, times: [0, 0.6, 1] }}>
+            <Check size={38} strokeWidth={3} />
+          </motion.span>
+        </div>
+        <motion.p {...rise(0)} className="mt-5 text-center text-[28px] font-semibold tnum">
+          <AnimatedValue value={receipt.rupees} from={0} format={formatRupees} duration={1.1} />
+        </motion.p>
+        <motion.p {...rise(1)} className="text-center text-[17px] font-semibold">transferred successfully</motion.p>
+
+        <motion.dl {...rise(2)} className="mt-6 space-y-3 border-t border-white/20 pt-4 text-[13px]">
+          <div><dt className="text-white/65">To</dt><dd className="font-semibold">{receipt.to}</dd></div>
+          <div className="flex justify-between gap-4">
+            <div><dt className="text-white/65">Scoins used</dt><dd className="tnum">{formatScoins(receipt.scoins)} at 10 = ₹1</dd></div>
+            <div className="text-right"><dt className="text-white/65">Balance left</dt><dd className="tnum">{formatScoins(receipt.left)} Scoins</dd></div>
+          </div>
+          <div className="flex justify-between gap-4">
+            <div><dt className="text-white/65">Transaction ID</dt><dd className="tnum">{receipt.ref}</dd></div>
+            <div className="text-right"><dt className="text-white/65">Date and time</dt><dd className="tnum">{when}</dd></div>
+          </div>
+        </motion.dl>
+      </motion.section>
+
+      <motion.button {...rise(3)} onClick={onClose} className="mt-6 h-12 w-full rounded-2xl bg-ink text-[15px] font-semibold text-page hover:bg-ink/90">
+        Back to wallet
+      </motion.button>
+      <p className="mt-3 text-center text-[11px] text-ink-3">Phone number, UPI handling and transaction ID are illustrative.</p>
     </div>
   )
 }

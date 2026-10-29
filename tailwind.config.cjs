@@ -17,6 +17,8 @@ module.exports = {
         accent: v('accent'),
         gold: { DEFAULT: v('gold'), hi: v('gold-hi'), lo: '#A87D2A', ink: '#1A1306', wash: 'rgb(var(--gold) / 0.14)' },
         gain: v('gain'),
+        brand: { DEFAULT: v('brand'), hi: v('brand-hi') },
+        success: v('success'),
         danger: '#C8442F',
       },
       fontFamily: {
