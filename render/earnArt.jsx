@@ -1,5 +1,6 @@
 // Offline renderer for the Earn card illustrations. Not part of the app bundle:
-// `npm run render:earn` screenshots each scene to src/assets/earn/<name>.webp.
+// With `npx vite --port 5174` running, `node render/capture.cjs <dir>` screenshots each scene to
+// transparent PNGs, which are then trimmed and saved as src/assets/earn/<name>.webp (176px).
 import { createRoot } from 'react-dom/client'
 import { useMemo } from 'react'
 import * as THREE from 'three'
