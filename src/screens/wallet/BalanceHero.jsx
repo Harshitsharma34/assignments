@@ -12,7 +12,7 @@ export function HeroBalance({ balance, savedRupees }) {
   return (
     <section aria-labelledby="balance-label" className="px-5 pt-3">
       <p id="balance-label" className="whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.16em] text-ink-2">Your rewards balance</p>
-      <p className={`mt-4 max-w-[52%] font-display font-medium leading-[0.95] tracking-[-0.02em] tnum ${size} ${empty ? 'text-ink-2' : 'text-ink'}`}>
+      <p className={`mt-4 max-w-[52%] font-display font-semibold leading-[0.95] tracking-[-0.035em] tnum ${size} ${empty ? 'text-ink-2' : 'text-ink'}`}>
         <AnimatedValue value={inAppValue(balance)} format={formatRupees} />
       </p>
       <p className="mt-3 flex items-center gap-2 text-[17px]">
