@@ -6,7 +6,7 @@ import ScoinGlyph from './components/ScoinGlyph.jsx'
 import Toast from './components/Toast.jsx'
 import { useWallet } from './lib/useWallet.js'
 import { formatRupees, inAppValue } from './lib/scoins.js'
-import NextBuild from './screens/NextBuild.jsx'
+import Earn from './screens/Earn.jsx'
 import Spend from './screens/Spend.jsx'
 import Withdraw from './screens/Withdraw.jsx'
 import Wallet from './screens/Wallet.jsx'
@@ -141,7 +141,7 @@ export default function App() {
                     onEarn={() => navigate('earn')}
                   />
                 ) : (
-                  <NextBuild route={route} balance={wallet.balance} selected={routeParams.scoins} onBack={() => setRoute('wallet')} />
+                  <Earn wallet={wallet} onBack={() => setRoute('wallet')} notify={notify} />
                 )}
               </motion.div>
             )}

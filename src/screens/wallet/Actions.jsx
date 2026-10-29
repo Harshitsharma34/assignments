@@ -1,15 +1,15 @@
 import { motion } from 'framer-motion'
-import { ArrowDownToLine, ArrowUpRight, Info, Plus } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpRight, History, Plus } from 'lucide-react'
 
 const press = { whileTap: { scale: 0.94 }, transition: { type: 'spring', stiffness: 500, damping: 30 } }
 
 // Four quick actions: identical circles with a short label underneath.
-export default function Actions({ onSpend, onWithdraw, onEarn, onRates }) {
+export default function Actions({ onSpend, onWithdraw, onEarn, onHistory }) {
   const items = [
     { icon: ArrowUpRight, label: 'Spend', onClick: onSpend, primary: true },
     { icon: ArrowDownToLine, label: 'Withdraw', onClick: onWithdraw },
     { icon: Plus, label: 'Earn', onClick: onEarn },
-    { icon: Info, label: 'Rates', onClick: onRates },
+    { icon: History, label: 'History', onClick: onHistory },
   ]
   return (
     <div className="grid grid-cols-4 px-4">

@@ -53,16 +53,12 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
 
         {isNew && <Reveal i={i++} className="mt-2"><NewUserIntro /></Reveal>}
 
-
         {!isEmpty && (
           <Reveal i={i++} className="mt-5">
-            <Actions onSpend={() => navigate('spend')} onWithdraw={() => navigate('withdraw')} onEarn={() => navigate('earn')} onRates={openRates} />
+            <Actions onSpend={() => navigate('spend')} onWithdraw={() => navigate('withdraw')} onEarn={() => navigate('earn')} onHistory={() => setSheet({ type: 'activity' })} />
           </Reveal>
         )}
 
-        {!isEmpty && (
-          <Reveal i={i++} className="mt-6"><ScoinCalculator balance={balance} onSpend={(scoins) => navigate('spend', { scoins })} onWithdraw={(scoins) => navigate('withdraw', { scoins })} /></Reveal>
-        )}
 
         {isEmpty && !isNew && (
           <Reveal i={i++} className="mx-auto mt-4 max-w-[320px] px-5 text-center text-[14px] leading-relaxed text-ink-2">
@@ -80,7 +76,7 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
             upi={state.upi}
             onPay={() => dispatch({ type: 'upi' })}
             showCardHint={!profile.hasCard}
-            onCardHint={() => notify({ text: 'Card benefits live in Earn (next build)' })}
+            onCardHint={() => navigate('earn')}
           />
         </Reveal>
 
@@ -93,7 +89,13 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
                 <PopularDeals balance={balance} onSelect={(d) => navigate('spend', { deal: d.id })} onSeeAll={() => navigate('spend')} />
               </Reveal>
             )}
-            <Reveal i={i++} className="mt-6">
+            {!isEmpty && (
+              <Reveal i={i++} className="mt-8">
+                <h2 className="label mb-2 px-5">What your Scoins are worth</h2>
+                <ScoinCalculator balance={balance} onSpend={(scoins) => navigate('spend', { scoins })} onWithdraw={(scoins) => navigate('withdraw', { scoins })} />
+              </Reveal>
+            )}
+            <Reveal i={i++} className="mt-8">
               <RecentActivity rows={rows} pending={profile.pending} onOpen={openTx} onSeeAll={() => setSheet({ type: 'activity' })} />
             </Reveal>
           </>

@@ -82,8 +82,8 @@ The review panel's scrubber seeks the same timeline (45° and 90° presets for c
 
 - [x] Screen A: Wallet, all four states, sheets, earn celebration
 - [x] 3D coin rebuilt with real depth; GSAP intro timeline; interactive coins
-- [ ] Screen B: Earn
+- [x] Screen B: Earn (current ways to earn + clearly labelled proposals)
 - [x] Screen C: Spend and Withdraw flows with review, loading, success, error and not-enough-Scoins states
-- [ ] Behaviour model write-up
+- [x] Behaviour model write-up (docs/deliverables.md)
 
 All earn amounts, deals and card figures in the prototype are illustrative. The two conversion rates are fixed.
