@@ -1,5 +1,6 @@
 import { Package, Receipt, Sandwich, UtensilsCrossed } from 'lucide-react'
 import { DEALS } from '../../data/userStates.js'
+import BrandLogo, { BRAND_TINT } from '../../components/BrandLogo.jsx'
 import ScoinGlyph from '../../components/ScoinGlyph.jsx'
 import { formatRupees, formatScoins, inAppValue } from '../../lib/scoins.js'
 
@@ -46,18 +47,17 @@ function DealCard({ deal, balance, onSelect }) {
     <button
       onClick={onSelect}
       className="relative flex h-[164px] w-full flex-col overflow-hidden rounded-card bg-surface p-4 text-left transition-colors hover:bg-sunken"
+      style={deal.logo ? { backgroundImage: `radial-gradient(120% 80% at 100% 0%, rgba(${BRAND_TINT[deal.logo]},0.30), rgba(${BRAND_TINT[deal.logo]},0.06) 55%, transparent 80%)` } : { backgroundImage: 'radial-gradient(120% 80% at 100% 0%, rgba(226,182,92,0.22), transparent 75%)' }}
     >
       {/* Line artwork stands in for product photography. */}
       <span aria-hidden="true" className="pointer-events-none absolute -right-5 -top-5 grid h-[116px] w-[116px] place-items-center rounded-full bg-transparent">
         <Art size={46} strokeWidth={1.1} className="text-ink-3/50" />
       </span>
-      <span
-        aria-hidden="true"
-        className="relative grid h-9 w-9 place-items-center rounded-full text-[16px] font-bold"
-        style={{ background: deal.mark.bg, color: deal.mark.fg }}
-      >
-        {deal.mark.letter}
-      </span>
+      {deal.logo ? (
+        <span className="relative"><BrandLogo brand={deal.logo} size={38} /></span>
+      ) : (
+        <span aria-hidden="true" className="relative grid h-[38px] w-[38px] place-items-center rounded-full bg-sunken text-[16px] font-bold text-accent">{deal.mark.letter}</span>
+      )}
       <span className="relative mt-auto block text-[14px] font-medium text-ink">{deal.brand}</span>
       <span className="relative mt-0.5 block text-[17px] font-semibold leading-tight text-ink tnum">{headline}</span>
       {deal.covered ? (

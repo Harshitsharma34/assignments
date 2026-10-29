@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronRight, Package, Receipt, Sandwich, UtensilsCrossed } from 'lucide-react'
 import Sheet from '../components/Sheet.jsx'
+import BrandLogo from '../components/BrandLogo.jsx'
 import ScoinGlyph from '../components/ScoinGlyph.jsx'
 import { formatRupees, formatScoins, inAppValue } from '../lib/scoins.js'
 import { ErrorView, PrimaryButton, Rows, ScreenHeader, SuccessView, useConfirmFlow } from './flow.jsx'
@@ -97,11 +98,7 @@ function Mark({ deal }) {
   if (deal.kind === 'bill') {
     return <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sunken" aria-hidden="true"><Art size={17} className="text-ink-2" /></span>
   }
-  return (
-    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[16px] font-bold" style={{ background: deal.mark.bg, color: deal.mark.fg }} aria-hidden="true">
-      {deal.mark.letter}
-    </span>
-  )
+  return <BrandLogo brand={deal.logo} size={40} />
 }
 
 function Review({ deal, balance, selected, dispatch, failNext, onFailUsed, onDone, onEarn }) {

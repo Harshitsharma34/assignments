@@ -91,8 +91,8 @@ export const STATE_ORDER = ['new', 'redeemed', 'active', 'card']
 
 // Illustrative deals. `cost` is in Scoins; the rupee saving is always cost ÷ 5.
 export const DEALS = [
-  { id: 'swiggy', brand: 'Swiggy', title: 'off your food order', cost: 1500, kind: 'voucher', art: 'food', mark: { bg: '#FC8019', fg: '#FFFFFF', letter: 'S' } },
+  { id: 'swiggy', brand: 'Swiggy', title: 'off your food order', cost: 1500, kind: 'voucher', art: 'food', logo: 'swiggy', mark: { bg: '#FC8019', fg: '#FFFFFF', letter: 'S' } },
   { id: 'bill', brand: 'Bills', title: 'off any bill', cost: null, kind: 'bill', art: 'bill', mark: { bg: '#262626', fg: '#E8C274', letter: '₹' } },
-  { id: 'zomato', brand: 'Zomato', title: 'off dining', cost: 2500, kind: 'voucher', art: 'dining', mark: { bg: '#E23744', fg: '#FFFFFF', letter: 'z' } },
-  { id: 'amazon', brand: 'Amazon Pay', title: 'gift card', cost: 5000, kind: 'voucher', art: 'parcel', mark: { bg: '#FFFFFF', fg: '#131921', letter: 'a' } },
+  { id: 'zomato', brand: 'Zomato', title: 'off dining', cost: 2500, kind: 'voucher', art: 'dining', logo: 'zomato', mark: { bg: '#E23744', fg: '#FFFFFF', letter: 'z' } },
+  { id: 'amazon', brand: 'Amazon Pay', title: 'gift card', cost: 5000, kind: 'voucher', art: 'parcel', logo: 'amazon', mark: { bg: '#FFFFFF', fg: '#131921', letter: 'a' } },
 ]

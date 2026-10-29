@@ -3,6 +3,10 @@ import { BellRing, CalendarCheck, CreditCard, House, Receipt, Repeat, Send, Spar
 import { formatRupees, formatScoins, inAppValue } from '../lib/scoins.js'
 import { ScreenHeader } from './flow.jsx'
 
+// Pre-rendered 3D illustrations (see render/earnArt.jsx), same gold as the Scoin.
+const ART = import.meta.glob('../assets/earn/*.webp', { eager: true, import: 'default' })
+const art = (name) => ART[`../assets/earn/${name}.webp`]
+
 // Earn: what earns Scoins today (from the current product), then proposed mechanics clearly
 // marked as proposals. Every row says the action, the Scoins, the limits and the next step.
 export default function Earn({ wallet, onBack, notify }) {
@@ -27,6 +31,7 @@ export default function Earn({ wallet, onBack, notify }) {
         {/* UPI bonus: the one rule with visible progress. */}
         <Card
           icon={Send}
+          image={art('upi')}
           title="UPI bonus"
           reward={`+${upi.reward} Scoins`}
           rupees={formatRupees(inAppValue(upi.reward))}
@@ -40,6 +45,7 @@ export default function Earn({ wallet, onBack, notify }) {
 
         <Card
           icon={House}
+          image={art('rent')}
           title="Rent via instacash"
           reward="Up to 1,000 Scoins"
           rupees={formatRupees(inAppValue(1000))}
@@ -50,6 +56,7 @@ export default function Earn({ wallet, onBack, notify }) {
 
         <Card
           icon={Receipt}
+          image={art('bills')}
           title="Bill payments"
           reward="Scoins on every bill"
           detail="Utilities, recharges and other bills paid on SalarySe."
@@ -59,6 +66,7 @@ export default function Earn({ wallet, onBack, notify }) {
 
         <Card
           icon={CalendarCheck}
+          image={art('emi')}
           title="quickloans EMI"
           reward="Scoins on each EMI"
           detail="Earned when a quickloans EMI is paid through SalarySe."
@@ -68,6 +76,7 @@ export default function Earn({ wallet, onBack, notify }) {
 
         <Card
           icon={Sparkles}
+          image={art('campaign')}
           title="Campaigns and partner offers"
           reward={campaign ? `+${formatScoins(campaign.scoins)} Scoins pending` : 'Limited time'}
           rupees={campaign ? formatRupees(inAppValue(campaign.scoins)) : undefined}
@@ -80,6 +89,7 @@ export default function Earn({ wallet, onBack, notify }) {
         {profile.hasCard ? (
           <Card
             icon={CreditCard}
+            image={art('card')}
             title="up! credit card"
             reward="10× on UPI"
             detail={`Card spends earn reward points; they become Scoins after each statement (next: ${profile.card.nextStatement}).`}
@@ -88,6 +98,7 @@ export default function Earn({ wallet, onBack, notify }) {
         ) : (
           <Card
             icon={CreditCard}
+            image={art('card')}
             title="UPI on an up! credit card"
             reward="10× Scoins"
             detail="UPI paid with an up! credit card earns 10× the Scoins. Subject to card approval."
@@ -108,6 +119,7 @@ export default function Earn({ wallet, onBack, notify }) {
         <Card
           proposal
           icon={CalendarCheck}
+          image={art('streak')}
           title="On-time bills, 3 months running"
           reward="+50 Scoins"
           rupees={formatRupees(inAppValue(50))}
@@ -118,6 +130,7 @@ export default function Earn({ wallet, onBack, notify }) {
         <Card
           proposal
           icon={Repeat}
+          image={art('autopay')}
           title="Set up autopay for a bill"
           reward="+25 Scoins"
           rupees={formatRupees(inAppValue(25))}
@@ -126,6 +139,7 @@ export default function Earn({ wallet, onBack, notify }) {
         <Card
           proposal
           icon={Star}
+          image={art('first')}
           title="Your first eligible payment"
           reward="+20 Scoins"
           rupees={formatRupees(inAppValue(20))}
@@ -135,6 +149,7 @@ export default function Earn({ wallet, onBack, notify }) {
         <Card
           proposal
           icon={Repeat}
+          image={art('recurring')}
           title="Recurring payments on SalarySe"
           reward="+30 Scoins a month"
           rupees={formatRupees(inAppValue(30))}
@@ -144,6 +159,7 @@ export default function Earn({ wallet, onBack, notify }) {
           <Card
             proposal
             icon={CreditCard}
+            image={art('card')}
             title="Activate your up! card"
             reward="+100 Scoins"
             rupees={formatRupees(inAppValue(100))}
@@ -156,13 +172,22 @@ export default function Earn({ wallet, onBack, notify }) {
   )
 }
 
-function Card({ icon: Icon, title, reward, rupees, detail, action, onAction, badge, proposal, illustrative, children }) {
+function Card({ icon: Icon, image, title, reward, rupees, detail, action, onAction, badge, proposal, illustrative, children }) {
   return (
     <li className="rounded-card bg-surface p-4">
       <div className="flex items-start gap-3">
-        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${proposal ? 'bg-sunken' : 'bg-gold/15'}`} aria-hidden="true">
-          <Icon size={17} className={proposal ? 'text-ink-2' : 'text-accent'} />
-        </span>
+        {image ? (
+          <span
+            className={`grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl ${proposal ? 'bg-sunken' : 'bg-[radial-gradient(circle_at_50%_40%,rgba(226,182,92,0.20),rgba(40,40,43,1)_72%)]'}`}
+            aria-hidden="true"
+          >
+            <img src={image} alt="" width={64} height={64} className={`h-16 w-16 object-contain ${proposal ? 'opacity-80 grayscale-[35%]' : ''}`} />
+          </span>
+        ) : (
+          <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${proposal ? 'bg-sunken' : 'bg-gold/15'}`} aria-hidden="true">
+            <Icon size={17} className={proposal ? 'text-ink-2' : 'text-accent'} />
+          </span>
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <p className="text-[15px] font-medium text-ink">{title}</p>

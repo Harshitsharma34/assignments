@@ -102,7 +102,7 @@ export default function ScoinCalculator({ balance, onSpend, onWithdraw }) {
           {spend ? <ArrowUpRight size={20} aria-hidden="true" className="self-center text-gain" /> : <Landmark size={19} aria-hidden="true" className="self-center text-ink-2" />}
           <AnimatedValue value={value} format={formatRupees} duration={0.4} />
           {spend ? (
-            <span className="text-[14px] font-medium text-gain">2× the bank value</span>
+            <span className="self-center whitespace-nowrap rounded-full bg-gain/15 px-2.5 py-1 text-[12px] font-semibold leading-none text-gain">2× the bank value</span>
           ) : (
             <span className="text-[15px] font-normal text-ink-3">or {formatRupees(inAppValue(scoins))} on SalarySe</span>
           )}

@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:preview": "vite build --mode preview"
+    "build:preview": "vite build --mode preview",
+    "render:earn": "node render/capture.cjs src/assets/earn-png  # needs: npx vite --port 5174"
   },
   "repository": {
     "type": "git",
