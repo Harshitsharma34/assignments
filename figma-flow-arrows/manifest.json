@@ -1,0 +1,8 @@
+{
+  "name": "Scoins flow arrows",
+  "id": "scoins-flow-arrows",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
+}
