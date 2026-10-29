@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ChevronRight, Loader2, Share2, X } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Loader2, Pencil, Share2, X } from 'lucide-react'
 import Confetti from '../components/Confetti.jsx'
 import AnimatedValue from '../components/AnimatedValue.jsx'
 import ScoinGlyph from '../components/ScoinGlyph.jsx'
@@ -19,14 +19,24 @@ const UPI_RE = /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/
 
 export default function Withdraw({ balance, selected, dispatch, failNext, onFailUsed, onBack, onSpend, onEarn, notify }) {
   const max = Math.floor(balance / STEP) * STEP
-  const [scoins, setScoins] = useState(() => (max >= STEP ? snapScoins(selected ?? max, max) : 0))
+  const [scoins, setScoinsRaw] = useState(() => (max >= STEP ? snapScoins(selected ?? max, max) : 0))
+  const [text, setText] = useState(() => String(bankValue(max >= STEP ? snapScoins(selected ?? max, max) : 0)))
+  // The slider, the quick picks and the typed amount all drive the same value.
+  const setScoins = (v) => { setScoinsRaw(v); setText(String(bankValue(v))) }
+  const onType = (e) => {
+    const t = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 6)
+    setText(t)
+    setScoinsRaw(Number(t || 0) * 10)
+  }
+  const over = scoins > max
+  const under = scoins < STEP
   const [upi, setUpi] = useState('')
   const [touched, setTouched] = useState(false)
   const [step, setStep] = useState('form') // form | otp | processing | success
   const [receipt, setReceipt] = useState(null)
   const rupees = bankValue(scoins)
   const upiValid = UPI_RE.test(upi.trim())
-  const ready = max >= STEP && scoins >= STEP && upiValid
+  const ready = max >= STEP && !under && !over && upiValid
 
   const finish = () => {
     const ref = `SCN${Date.now().toString().slice(-9)}`
@@ -48,7 +58,7 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
           <ArrowLeft size={19} />
         </button>
         <h1 className="flex-1 text-[16px] font-semibold text-white">Transfer to bank</h1>
-        <span className="flex items-center gap-1.5 rounded-full border border-gold/40 px-3 py-1.5 text-[13px] font-semibold text-gold-hi tnum">
+        <span className="flex items-center gap-1.5 rounded-full bg-black/20 px-3 py-1.5 text-[13px] font-semibold text-white tnum backdrop-blur-sm">
           <ScoinGlyph size={14} /> 10 = ₹1
         </span>
       </header>
@@ -57,31 +67,46 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
         <div className="px-6 pt-20 text-center">
           <p className="text-[20px] font-semibold text-white">No Scoins to withdraw yet</p>
           <p className="mt-2 text-[14px] text-white/65">Withdrawals start from {STEP} Scoins ({formatRupees(bankValue(STEP))}).</p>
-          <button onClick={onEarn} className="mt-6 h-11 rounded-full bg-gold px-5 text-[14px] font-semibold text-gold-ink hover:bg-gold-hi">See ways to earn</button>
+          <button onClick={onEarn} className="mt-6 h-11 rounded-full bg-white px-5 text-[14px] font-semibold text-black hover:bg-white/90">See ways to earn</button>
         </div>
       ) : (
         <div className="px-6">
-          {/* The amount is the page: large gold figure, no container around it. */}
+          {/* The amount is the page: a large figure you can also type into. */}
           <section className="pt-10 text-center" aria-label="Transfer amount">
-            <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-gold/80">You'll receive</p>
-            <p className="mt-2 bg-[linear-gradient(180deg,#FFF1C9_0%,#F2CD7E_45%,#C9962F_100%)] bg-clip-text text-[60px] font-bold leading-none tracking-[-0.04em] text-transparent tnum">
-              <AnimatedValue value={rupees} format={formatRupees} duration={0.35} />
-            </p>
-            <p className="mt-3 flex items-center justify-center gap-1.5 text-[14px] text-white/70 tnum">
-              <ScoinGlyph size={14} /> {formatScoins(scoins)} of {formatScoins(balance)} Scoins
+            <label htmlFor="amount" className="text-[13px] font-medium uppercase tracking-[0.14em] text-white/80">You'll receive</label>
+            <div className="mt-2 flex items-center justify-center">
+              <span className="text-[44px] font-bold leading-none text-white/70">₹</span>
+              <input
+                id="amount"
+                value={text}
+                onChange={onType}
+                onFocus={(e) => e.target.select()}
+                inputMode="numeric"
+                autoComplete="off"
+                aria-describedby="amount-help"
+                aria-invalid={over || (under && text !== '') ? true : undefined}
+                style={{ width: `${Math.max(1, text.length) * 0.56 + 0.05}em` }}
+                className="bg-transparent text-[60px] font-bold leading-none tracking-[-0.04em] text-white caret-white tnum focus:outline-none"
+              />
+              <Pencil size={16} aria-hidden="true" className="ml-1 self-end mb-2 text-white/50" />
+            </div>
+            <p id="amount-help" className={`mt-3 flex items-center justify-center gap-1.5 text-[14px] tnum ${over || (under && text !== '') ? 'text-[#FFD3CF]' : 'text-white/75'}`}>
+              {over ? `You can withdraw up to ${formatRupees(bankValue(max))}`
+                : under ? `Minimum ${formatRupees(bankValue(STEP))}`
+                : <><ScoinGlyph size={14} /> {formatScoins(scoins)} of {formatScoins(balance)} Scoins</>}
             </p>
           </section>
 
-          <TickSlider value={scoins} max={max} onChange={setScoins} label="Scoins to transfer" />
+          <TickSlider value={Math.min(Math.max(scoins, STEP), max)} max={max} onChange={setScoins} label="Scoins to transfer" />
           <div className="flex justify-center gap-6" role="group" aria-label="Quick amounts">
             {PICKS.map(([label, share]) => {
               const v = snapScoins(max * share, max)
               const on = v === scoins
               return (
                 <button key={label} onClick={() => setScoins(v)} aria-pressed={on}
-                  className={`relative min-h-[44px] px-2 text-[14px] tnum transition-colors ${on ? 'font-semibold text-gold-hi' : 'text-white/55 hover:text-white'}`}>
+                  className={`relative min-h-[44px] px-2 text-[14px] tnum transition-colors ${on ? 'font-semibold text-white' : 'text-white/55 hover:text-white'}`}>
                   {label}
-                  {on && <motion.span layoutId="pick" aria-hidden="true" className="absolute inset-x-2 bottom-2 h-px bg-gold-hi" />}
+                  {on && <motion.span layoutId="pick" aria-hidden="true" className="absolute inset-x-2 bottom-2 h-0.5 rounded-full bg-white" />}
                 </button>
               )
             })}
@@ -90,7 +115,7 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
           <GoldRule className="mt-5" />
 
           <button onClick={onSpend} className="flex min-h-[48px] w-full items-center gap-2 text-left text-[14px] text-white/75 hover:text-white">
-            <span className="flex-1 tnum">Worth <span className="font-semibold text-gold-hi">{formatRupees(inAppValue(scoins))}</span> if spent on SalarySe</span>
+            <span className="flex-1 tnum">Worth <span className="font-semibold text-gold-hi">{formatRupees(inAppValue(Math.min(scoins, max)))}</span> if spent on SalarySe</span>
             <span className="flex items-center gap-0.5 font-medium text-gold-hi">Spend instead <ChevronRight size={15} aria-hidden="true" /></span>
           </button>
 
@@ -118,7 +143,7 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
           </section>
 
           <div className="mt-9">
-            <SwipeToConfirm tone="gold" label={`Swipe to get ${formatRupees(rupees)}`} disabled={!ready} onConfirm={() => setStep('otp')} />
+            <SwipeToConfirm tone="light" label={`Swipe to get ${formatRupees(rupees)}`} disabled={!ready} onConfirm={() => setStep('otp')} />
             <p className="mt-3 text-center text-[11px] text-white/40">UPI transfer and OTP are illustrative.</p>
           </div>
         </div>
@@ -136,15 +161,18 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
   )
 }
 
-// Deep green field with a soft gold glow and fine engraved rings at the top: the page's
-// only "surface", so content sits directly on it instead of in boxes.
+// SalarySe green that falls away to black, lit by two slow light pools and fine rings.
+// It is the page's only surface: content sits straight on it instead of in boxes.
 function GreenStage({ children, center = false }) {
   return (
-    <div className={`relative min-h-full overflow-hidden bg-[linear-gradient(180deg,#0F3E28_0%,#0A2C1C_45%,#061A10_100%)] pb-10 ${center ? 'flex flex-col' : ''}`}>
-      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-160px] h-[420px] w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(242,205,126,0.30),rgba(242,205,126,0.08)_55%,transparent)]" />
-      <svg aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-120px] -translate-x-1/2 opacity-[0.16]" width="560" height="560" viewBox="0 0 560 560">
+    <div className={`relative min-h-full overflow-hidden bg-black pb-10 ${center ? 'flex flex-col' : ''}`}>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[linear-gradient(180deg,#14D467_0%,#0A9A48_26%,#04512A_52%,#011A0D_76%,#000_100%)]" />
+      {/* Two slow light pools drift over the green so it feels lit, not flat. */}
+      <div aria-hidden="true" className="aurora pointer-events-none absolute -left-24 -top-24 h-[340px] w-[340px] rounded-full bg-[radial-gradient(closest-side,rgba(190,255,120,0.45),transparent)]" />
+      <div aria-hidden="true" className="aurora aurora-b pointer-events-none absolute -right-28 top-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(242,205,126,0.30),transparent)]" />
+      <svg aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-140px] -translate-x-1/2 opacity-[0.14]" width="560" height="560" viewBox="0 0 560 560">
         {Array.from({ length: 14 }, (_, i) => (
-          <circle key={i} cx="280" cy="280" r={60 + i * 16} fill="none" stroke="#F2CD7E" strokeWidth="0.6" strokeDasharray={i % 2 ? '1 5' : undefined} />
+          <circle key={i} cx="280" cy="280" r={60 + i * 16} fill="none" stroke="#fff" strokeWidth="0.6" strokeDasharray={i % 2 ? '1 5' : undefined} />
         ))}
       </svg>
       <div className={`relative ${center ? 'flex flex-1 flex-col' : ''}`}>{children}</div>
@@ -316,7 +344,7 @@ function Success({ receipt, onDone }) {
             {/* Slow gold rays behind the seal. */}
             <motion.span
               aria-hidden="true"
-              className="absolute inset-[-30px] rounded-full will-change-transform bg-[repeating-conic-gradient(from_0deg,rgba(242,205,126,0.22)_0deg_6deg,transparent_6deg_18deg)] [mask:radial-gradient(closest-side,#000_20%,transparent_100%)]"
+              className="absolute inset-[-30px] rounded-full will-change-transform bg-[repeating-conic-gradient(from_0deg,rgba(255,255,255,0.16)_0deg_6deg,transparent_6deg_18deg)] [mask:radial-gradient(closest-side,#000_20%,transparent_100%)]"
               initial={reduce ? false : { opacity: 0, scale: 0.6 }}
               animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1, rotate: 90 }}
               transition={{ opacity: { delay: 0.55, duration: 0.6 }, scale: { delay: 0.55, duration: 0.8, ease: 'easeOut' }, rotate: { delay: 0.55, duration: 24, ease: 'linear' } }}
@@ -375,11 +403,11 @@ function Success({ receipt, onDone }) {
           </div>
                     <ConfettiWhenReady anchor={seal} />
 
-          <motion.p {...rise(0)} className="mt-1 bg-[linear-gradient(180deg,#FFF1C9_0%,#F2CD7E_45%,#C9962F_100%)] bg-clip-text text-[52px] font-bold leading-tight tracking-[-0.04em] text-transparent tnum">
+          <motion.p {...rise(0)} className="mt-1 text-[52px] font-bold leading-tight tracking-[-0.04em] text-white tnum">
             <AnimatedValue value={receipt.rupees} from={0} format={formatRupees} duration={1.1} />
           </motion.p>
           <motion.p {...rise(1)} className="text-[17px] font-medium text-white">is on its way to your bank</motion.p>
-          <motion.p {...rise(2)} className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/[0.08] px-3 py-1 text-[12px] text-white/70">
+          <motion.p {...rise(2)} className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-black/25 px-3 py-1 text-[12px] text-white/80">
             <span className="h-1.5 w-1.5 rounded-full bg-gain motion-safe:animate-pulse" aria-hidden="true" /> Processing · usually instant (illustrative)
           </motion.p>
         </div>
@@ -394,7 +422,7 @@ function Success({ receipt, onDone }) {
         </dl>
 
         <motion.div {...rise(9)} className="mt-auto px-6 pt-6">
-          <button onClick={onDone} className="h-12 w-full rounded-full bg-[linear-gradient(90deg,#C9962F,#F2CD7E_50%,#E2B65C)] text-[15px] font-semibold text-[#1C1406] hover:brightness-105">
+          <button onClick={onDone} className="h-12 w-full rounded-full bg-white text-[15px] font-semibold text-black hover:bg-white/90">
             Back to wallet
           </button>
           <p className="mt-3 text-center text-[11px] text-white/40">UPI handling and transaction ID are illustrative.</p>
