@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { ArrowLeft, ChevronRight, Loader2, Share2, X } from 'lucide-react'
+import Confetti from '../components/Confetti.jsx'
 import AnimatedValue from '../components/AnimatedValue.jsx'
 import ScoinGlyph from '../components/ScoinGlyph.jsx'
 import Sheet from '../components/Sheet.jsx'
 import SwipeToConfirm from '../components/SwipeToConfirm.jsx'
 import { bankValue, formatRupees, formatScoins, inAppValue } from '../lib/scoins.js'
-import { SuccessView } from './flow.jsx'
 import { STEP, TickSlider, snapScoins } from './wallet/ScoinCalculator.jsx'
 
 // Withdraw follows SalarySe's existing transfer flow: amount and UPI ID, swipe to transfer,
-// OTP, processing, then the success sheet. Added on top: the exact rupees at 10 Scoins = ₹1,
+// OTP, processing, then a full-screen success. Green and gold, laid straight on the page. Added on top: the exact rupees at 10 Scoins = ₹1,
 // the in-app value shown as information, validation before the swipe unlocks, and a
 // reconciled balance afterwards.
 const PHONE = '+91 98•••••828' // illustrative
@@ -38,63 +39,65 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
   }
 
   if (step === 'processing') return <Processing rupees={receipt.rupees} to={receipt.to} />
+  if (step === 'success') return <Success receipt={receipt} onDone={onBack} />
 
   return (
-    <div className="min-h-full pb-10">
-      {/* SalarySe's blue header: the page title, the balance and the bank rate. */}
-      <header className="bg-brand px-4 pb-5 pt-12 text-white">
-        <div className="flex items-center gap-3">
-          <button onClick={onBack} aria-label="Back to wallet" className="grid h-10 w-10 place-items-center rounded-full bg-white/15 hover:bg-white/25">
-            <ArrowLeft size={19} />
-          </button>
-          <h1 className="text-[16px] font-semibold">Transfer Scoins to bank account</h1>
-        </div>
-        <div className="mt-5 flex items-end justify-between">
-          <div>
-            <p className="text-[12px] text-white/75">Current balance</p>
-            <p className="mt-0.5 flex items-center gap-1.5 text-[18px] font-semibold tnum"><ScoinGlyph size={17} /> {formatScoins(balance)}</p>
-          </div>
-          <span className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[14px] font-semibold tnum">
-            <ScoinGlyph size={15} /> 10 = ₹1
-          </span>
-        </div>
+    <GreenStage>
+      <header className="flex items-center gap-3 px-4 pt-12">
+        <button onClick={onBack} aria-label="Back to wallet" className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20">
+          <ArrowLeft size={19} />
+        </button>
+        <h1 className="flex-1 text-[16px] font-semibold text-white">Transfer to bank</h1>
+        <span className="flex items-center gap-1.5 rounded-full border border-gold/40 px-3 py-1.5 text-[13px] font-semibold text-gold-hi tnum">
+          <ScoinGlyph size={14} /> 10 = ₹1
+        </span>
       </header>
 
       {max < STEP ? (
-        <div className="mx-5 mt-6 shine-border rounded-card bg-surface p-5 text-center">
-          <p className="text-[15px] font-medium text-ink">No Scoins to withdraw yet</p>
-          <p className="mt-1 text-[13px] text-ink-2">Withdrawals start from {STEP} Scoins ({formatRupees(bankValue(STEP))}).</p>
-          <button onClick={onEarn} className="mt-4 h-10 rounded-full bg-sunken px-4 text-[14px] font-medium text-ink hover:bg-sunken-2">See ways to earn</button>
+        <div className="px-6 pt-20 text-center">
+          <p className="text-[20px] font-semibold text-white">No Scoins to withdraw yet</p>
+          <p className="mt-2 text-[14px] text-white/65">Withdrawals start from {STEP} Scoins ({formatRupees(bankValue(STEP))}).</p>
+          <button onClick={onEarn} className="mt-6 h-11 rounded-full bg-gold px-5 text-[14px] font-semibold text-gold-ink hover:bg-gold-hi">See ways to earn</button>
         </div>
       ) : (
-        <div className="px-5">
-          <section className="mt-5 shine-border rounded-card bg-surface p-4" aria-label="Transfer amount">
-            <p className="text-[13px] text-ink-3">You'll receive</p>
-            <p className="mt-0.5 text-[40px] font-semibold tracking-[-0.03em] text-ink tnum">
+        <div className="px-6">
+          {/* The amount is the page: large gold figure, no container around it. */}
+          <section className="pt-10 text-center" aria-label="Transfer amount">
+            <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-gold/80">You'll receive</p>
+            <p className="mt-2 bg-[linear-gradient(180deg,#FFF1C9_0%,#F2CD7E_45%,#C9962F_100%)] bg-clip-text text-[60px] font-bold leading-none tracking-[-0.04em] text-transparent tnum">
               <AnimatedValue value={rupees} format={formatRupees} duration={0.35} />
             </p>
-            <p className="flex items-center gap-1.5 text-[13px] text-ink-2 tnum"><ScoinGlyph size={13} /> {formatScoins(scoins)} Scoins at 10 Scoins = ₹1</p>
-            <TickSlider value={scoins} max={max} onChange={setScoins} label="Scoins to transfer" />
-            <div className="mt-1 flex gap-1" role="group" aria-label="Quick amounts">
-              {PICKS.map(([label, share]) => {
-                const v = snapScoins(max * share, max)
-                return (
-                  <button key={label} onClick={() => setScoins(v)} aria-pressed={v === scoins}
-                    className={`h-9 min-w-[60px] rounded-full px-3 text-[13px] tnum ${v === scoins ? 'bg-sunken font-semibold text-ink' : 'text-ink-3 hover:text-ink'}`}>
-                    {label}
-                  </button>
-                )
-              })}
-            </div>
+            <p className="mt-3 flex items-center justify-center gap-1.5 text-[14px] text-white/70 tnum">
+              <ScoinGlyph size={14} /> {formatScoins(scoins)} of {formatScoins(balance)} Scoins
+            </p>
           </section>
 
-          <button onClick={onSpend} className="mt-2 flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-[13px] text-ink-2 hover:bg-surface">
-            <span className="tnum">Worth <span className="font-semibold text-accent">{formatRupees(inAppValue(scoins))}</span> on SalarySe</span>
-            <span className="text-accent">Spend instead</span>
+          <TickSlider value={scoins} max={max} onChange={setScoins} label="Scoins to transfer" />
+          <div className="flex justify-center gap-6" role="group" aria-label="Quick amounts">
+            {PICKS.map(([label, share]) => {
+              const v = snapScoins(max * share, max)
+              const on = v === scoins
+              return (
+                <button key={label} onClick={() => setScoins(v)} aria-pressed={on}
+                  className={`relative min-h-[44px] px-2 text-[14px] tnum transition-colors ${on ? 'font-semibold text-gold-hi' : 'text-white/55 hover:text-white'}`}>
+                  {label}
+                  {on && <motion.span layoutId="pick" aria-hidden="true" className="absolute inset-x-2 bottom-2 h-px bg-gold-hi" />}
+                </button>
+              )
+            })}
+          </div>
+
+          <GoldRule className="mt-5" />
+
+          <button onClick={onSpend} className="flex min-h-[48px] w-full items-center gap-2 text-left text-[14px] text-white/75 hover:text-white">
+            <span className="flex-1 tnum">Worth <span className="font-semibold text-gold-hi">{formatRupees(inAppValue(scoins))}</span> if spent on SalarySe</span>
+            <span className="flex items-center gap-0.5 font-medium text-gold-hi">Spend instead <ChevronRight size={15} aria-hidden="true" /></span>
           </button>
 
-          <section className="mt-2">
-            <label htmlFor="upi" className="text-[13px] text-ink-3">Your UPI ID</label>
+          <GoldRule />
+
+          <section className="mt-6">
+            <label htmlFor="upi" className="text-[13px] font-medium text-white/65">Send to UPI ID</label>
             <input
               id="upi"
               value={upi}
@@ -107,33 +110,19 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
               placeholder="name@bank"
               aria-invalid={touched && !upiValid ? true : undefined}
               aria-describedby="upi-help"
-              className={`mt-1.5 h-12 w-full rounded-xl border bg-surface px-4 text-[16px] text-ink placeholder:text-ink-3 focus:outline-none ${touched && !upiValid ? 'border-danger' : 'border-line focus:border-brand'}`}
+              className={`mt-1 h-12 w-full border-b bg-transparent text-[18px] text-white placeholder:text-white/30 focus:outline-none ${touched && !upiValid ? 'border-danger' : 'border-white/20 focus:border-gold-hi'}`}
             />
-            <p id="upi-help" className={`mt-1.5 text-[12px] ${touched && !upiValid ? 'text-danger' : 'text-ink-3'}`}>
+            <p id="upi-help" className={`mt-2 text-[12px] ${touched && !upiValid ? 'text-danger' : 'text-white/50'}`}>
               {touched && !upiValid ? 'That doesn’t look like a UPI ID. It should look like name@bank.' : 'Use the UPI ID linked to your bank account.'}
             </p>
           </section>
 
-          <div className="mt-6">
-            <SwipeToConfirm label={`Swipe to get ${formatRupees(rupees)}`} disabled={!ready} onConfirm={() => setStep('otp')} />
+          <div className="mt-9">
+            <SwipeToConfirm tone="gold" label={`Swipe to get ${formatRupees(rupees)}`} disabled={!ready} onConfirm={() => setStep('otp')} />
+            <p className="mt-3 text-center text-[11px] text-white/40">UPI transfer and OTP are illustrative.</p>
           </div>
         </div>
       )}
-
-      {/* Success: the earlier sheet design, with the gold badge, confetti and count-up. */}
-      <Sheet open={step === 'success'} onClose={onBack} title="Requested">
-        {receipt && (
-          <SuccessView
-            amount={receipt.rupees}
-            format={formatRupees}
-            suffix="on its way"
-            lines={[`To ${receipt.to}`, `${formatScoins(receipt.scoins)} Scoins withdrawn · ${formatScoins(receipt.left)} left`]}
-            onDone={onBack}
-          >
-            <p className="mx-auto mt-4 inline-block rounded-full bg-sunken px-3 py-1.5 text-[13px] text-ink-2">Status: processing (illustrative)</p>
-          </SuccessView>
-        )}
-      </Sheet>
 
       <Sheet open={step === 'otp'} onClose={() => setStep('form')} title="Enter OTP to confirm">
         <Otp
@@ -143,8 +132,28 @@ export default function Withdraw({ balance, selected, dispatch, failNext, onFail
           onVerified={finish}
         />
       </Sheet>
+    </GreenStage>
+  )
+}
+
+// Deep green field with a soft gold glow and fine engraved rings at the top: the page's
+// only "surface", so content sits directly on it instead of in boxes.
+function GreenStage({ children, center = false }) {
+  return (
+    <div className={`relative min-h-full overflow-hidden bg-[linear-gradient(180deg,#0F3E28_0%,#0A2C1C_45%,#061A10_100%)] pb-10 ${center ? 'flex flex-col' : ''}`}>
+      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-160px] h-[420px] w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(242,205,126,0.30),rgba(242,205,126,0.08)_55%,transparent)]" />
+      <svg aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-120px] -translate-x-1/2 opacity-[0.16]" width="560" height="560" viewBox="0 0 560 560">
+        {Array.from({ length: 14 }, (_, i) => (
+          <circle key={i} cx="280" cy="280" r={60 + i * 16} fill="none" stroke="#F2CD7E" strokeWidth="0.6" strokeDasharray={i % 2 ? '1 5' : undefined} />
+        ))}
+      </svg>
+      <div className={`relative ${center ? 'flex flex-1 flex-col' : ''}`}>{children}</div>
     </div>
   )
+}
+
+function GoldRule({ className = '' }) {
+  return <div aria-hidden="true" className={`h-px bg-[linear-gradient(90deg,transparent,rgba(242,205,126,0.35),transparent)] ${className}`} />
 }
 
 function Otp({ summary, failNext, onFailUsed, onVerified }) {
@@ -213,7 +222,7 @@ function Otp({ summary, failNext, onFailUsed, onVerified }) {
             maxLength={6}
             aria-label={`Digit ${i + 1}`}
             autoFocus={i === 0}
-            className={`h-12 w-full rounded-xl border bg-sunken text-center text-[18px] font-semibold text-ink tnum focus:outline-none ${status === 'error' ? 'border-danger' : d ? 'border-ink/40' : 'border-line focus:border-brand'}`}
+            className={`h-12 w-full rounded-xl border bg-sunken text-center text-[18px] font-semibold text-ink tnum focus:outline-none ${status === 'error' ? 'border-danger' : d ? 'border-ink/40' : 'border-line focus:border-gold'}`}
           />
         ))}
       </div>
@@ -222,13 +231,13 @@ function Otp({ summary, failNext, onFailUsed, onVerified }) {
           ? 'That OTP didn’t match. No Scoins were withdrawn. Try again.'
           : seconds > 0
           ? `Resend OTP in 00:${String(seconds).padStart(2, '0')}`
-          : <button onClick={() => setSeconds(30)} className="font-medium text-brand-hi">Resend OTP</button>}
+          : <button onClick={() => setSeconds(30)} className="font-medium text-gold-hi">Resend OTP</button>}
       </p>
       <p className="mt-1 text-center text-[11px] text-ink-3">Prototype: any 6 digits work.</p>
       <button
         onClick={verify}
         disabled={code.length < 6 || status === 'checking'}
-        className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-[15px] font-semibold text-white transition-colors hover:bg-brand-hi disabled:bg-sunken disabled:text-ink-3"
+        className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gold text-[15px] font-semibold text-gold-ink transition-colors hover:bg-gold-hi disabled:bg-sunken disabled:text-ink-3"
       >
         {status === 'checking' && <Loader2 size={17} className="motion-safe:animate-spin" aria-hidden="true" />}
         {status === 'checking' ? 'Verifying…' : 'Verify and proceed'}
@@ -238,17 +247,171 @@ function Otp({ summary, failNext, onFailUsed, onVerified }) {
 }
 
 function Processing({ rupees, to }) {
+  const reduce = useReducedMotion()
   return (
-    <div className="flex min-h-full flex-col px-5 pt-16" role="status" aria-live="polite">
-      <div className="shine-border rounded-card bg-surface p-6 text-center">
-        <Loader2 size={40} className="mx-auto text-gold motion-safe:animate-spin" aria-hidden="true" />
-        <p className="mt-4 text-[20px] font-semibold text-ink tnum">Processing transfer of {formatRupees(rupees)}</p>
-        <div className="mt-5 border-t border-line pt-4 text-left">
-          <p className="text-[12px] text-ink-3">To</p>
-          <p className="text-[15px] font-medium text-ink">{to}</p>
+    <GreenStage center>
+      <div className="flex flex-1 flex-col items-center justify-center px-6 pt-24 text-center" role="status" aria-live="polite">
+        <div className="relative h-24 w-24">
+          <motion.span
+            aria-hidden="true"
+            className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,#F2CD7E_300deg,transparent_360deg)] [mask:radial-gradient(farthest-side,transparent_calc(100%-3px),#000_calc(100%-2px))]"
+            animate={reduce ? undefined : { rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1.1, ease: 'linear' }}
+          />
+          <span className="absolute inset-3 grid place-items-center"><ScoinGlyph size={58} /></span>
         </div>
+        <p className="mt-7 text-[22px] font-semibold text-white tnum">Sending {formatRupees(rupees)}</p>
+        <p className="mt-1 text-[14px] text-white/65">to {to}</p>
+        <p className="mt-10 text-[13px] text-white/45">Please don’t go back or close the app.</p>
       </div>
-      <p className="mt-4 text-center text-[13px] text-ink-3">Please don’t go back or close the app.</p>
-    </div>
+    </GreenStage>
   )
+}
+
+// Success: the green field floods out from the centre, a gold coin drops in and turns over,
+// settling as a gold seal with the tick drawn on it. Rays turn slowly behind it, a shockwave
+// and gold confetti go out, then the amount counts up and the receipt rises line by line.
+function Success({ receipt, onDone }) {
+  const seal = useRef(null)
+  const reduce = useReducedMotion()
+  const [opened, setOpened] = useState(!!reduce)
+  useEffect(() => {
+    if (!reduce) navigator.vibrate?.([18, 40, 28])
+  }, [reduce])
+  const rise = (i) => ({
+    initial: reduce ? false : { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay: 1.05 + i * 0.07, duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+  })
+  const when = receipt.at.toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+  const rows = [
+    ['To', receipt.to],
+    ['Scoins used', `${formatScoins(receipt.scoins)} at 10 = ₹1`],
+    ['Balance left', `${formatScoins(receipt.left)} Scoins`],
+    ['Transaction ID', receipt.ref],
+    ['Date and time', when],
+  ]
+
+  return (
+    <motion.div
+      className="min-h-full"
+      initial={reduce ? false : { clipPath: 'circle(0% at 50% 38%)' }}
+      animate={{ clipPath: 'circle(150% at 50% 38%)' }}
+      transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
+      onAnimationComplete={() => setOpened(true)}
+      style={opened ? { clipPath: 'none' } : undefined}
+    >
+      <GreenStage center>
+        <div className="flex items-center justify-between px-4 pt-12">
+          <button onClick={onDone} aria-label="Close" className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"><X size={19} /></button>
+          <button
+            onClick={() => navigator.share?.({ text: `${formatRupees(receipt.rupees)} sent to ${receipt.to} · Ref ${receipt.ref}` })}
+            aria-label="Share receipt"
+            className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"
+          ><Share2 size={17} /></button>
+        </div>
+
+        <div className="px-6 pt-6 text-center" role="status">
+          <div ref={seal} className="relative mx-auto grid h-[200px] w-[200px] place-items-center">
+            {/* Slow gold rays behind the seal. */}
+            <motion.span
+              aria-hidden="true"
+              className="absolute inset-[-30px] rounded-full will-change-transform bg-[repeating-conic-gradient(from_0deg,rgba(242,205,126,0.22)_0deg_6deg,transparent_6deg_18deg)] [mask:radial-gradient(closest-side,#000_20%,transparent_100%)]"
+              initial={reduce ? false : { opacity: 0, scale: 0.6 }}
+              animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1, rotate: 90 }}
+              transition={{ opacity: { delay: 0.55, duration: 0.6 }, scale: { delay: 0.55, duration: 0.8, ease: 'easeOut' }, rotate: { delay: 0.55, duration: 24, ease: 'linear' } }}
+            />
+            {/* Shockwaves. */}
+            {!reduce && [0, 1, 2].map((i) => (
+              <motion.span
+                key={i}
+                aria-hidden="true"
+                className="absolute h-[112px] w-[112px] rounded-full border border-gold-hi"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: [0.9, 2.3], opacity: [0.8, 0] }}
+                transition={{ delay: 0.78 + i * 0.18, duration: 1.2, ease: 'easeOut' }}
+              />
+            ))}
+            {/* The coin drops, turns over and becomes the seal. */}
+            <motion.span
+              aria-hidden="true"
+              style={{ transformPerspective: 600 }}
+              className="relative grid h-[112px] w-[112px] place-items-center overflow-hidden rounded-full bg-[radial-gradient(circle_at_34%_28%,#FFF0C2,#F2CD7E_38%,#D4A441_70%,#9C7020)] shadow-[0_0_0_6px_rgba(242,205,126,0.14),0_18px_50px_rgba(242,205,126,0.35),inset_0_-6px_12px_rgba(110,72,10,0.45),inset_0_4px_8px_rgba(255,255,255,0.5)]"
+              initial={reduce ? false : { y: -140, scale: 0.4, rotateY: 0, opacity: 0 }}
+              animate={{ y: 0, scale: [0.4, 1.12, 1], rotateY: 720, opacity: 1 }}
+              transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1], opacity: { duration: 0.2, delay: 0.2 } }}
+            >
+              <span className="absolute inset-[7px] rounded-full border border-[#8A6116]/35" />
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" className="relative text-[#3A2705]">
+                <motion.path
+                  d="M5 12.5l4.5 4.5L19 7.5"
+                  stroke="currentColor"
+                  strokeWidth="2.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={reduce ? false : { pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.95, duration: 0.4, ease: 'easeOut' }}
+                />
+              </svg>
+              {/* One light sweep across the face. */}
+              {!reduce && (
+                <motion.span
+                  className="absolute inset-y-0 w-10 -skew-x-12 bg-white/50 blur-[3px]"
+                  initial={{ x: -110 }}
+                  animate={{ x: 110 }}
+                  transition={{ delay: 1.3, duration: 0.8, ease: 'easeInOut' }}
+                />
+              )}
+            </motion.span>
+            {/* Sparkles that twinkle once around the seal. */}
+            {!reduce && SPARKS.map(([x, y, d], i) => (
+              <motion.svg key={i} aria-hidden="true" width="14" height="14" viewBox="0 0 10 10" className="absolute text-gold-hi" style={{ left: x, top: y }}
+                initial={{ scale: 0, opacity: 0 }} animate={{ scale: [0, 1, 0], opacity: [0, 1, 0], rotate: 45 }}
+                transition={{ delay: 0.9 + d, duration: 1.1, ease: 'easeOut' }}>
+                <path d="M5 0 6 4 10 5 6 6 5 10 4 6 0 5 4 4z" fill="currentColor" />
+              </motion.svg>
+            ))}
+          </div>
+                    <ConfettiWhenReady anchor={seal} />
+
+          <motion.p {...rise(0)} className="mt-1 bg-[linear-gradient(180deg,#FFF1C9_0%,#F2CD7E_45%,#C9962F_100%)] bg-clip-text text-[52px] font-bold leading-tight tracking-[-0.04em] text-transparent tnum">
+            <AnimatedValue value={receipt.rupees} from={0} format={formatRupees} duration={1.1} />
+          </motion.p>
+          <motion.p {...rise(1)} className="text-[17px] font-medium text-white">is on its way to your bank</motion.p>
+          <motion.p {...rise(2)} className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/[0.08] px-3 py-1 text-[12px] text-white/70">
+            <span className="h-1.5 w-1.5 rounded-full bg-gain motion-safe:animate-pulse" aria-hidden="true" /> Processing · usually instant (illustrative)
+          </motion.p>
+        </div>
+
+        <dl className="mt-7 px-6">
+          {rows.map(([k, v], i) => (
+            <motion.div key={k} {...rise(3 + i)} className="flex items-baseline justify-between gap-4 border-b border-white/[0.08] py-3 text-[14px] last:border-0">
+              <dt className="text-white/55">{k}</dt>
+              <dd className="truncate text-right font-medium text-white tnum">{v}</dd>
+            </motion.div>
+          ))}
+        </dl>
+
+        <motion.div {...rise(9)} className="mt-auto px-6 pt-6">
+          <button onClick={onDone} className="h-12 w-full rounded-full bg-[linear-gradient(90deg,#C9962F,#F2CD7E_50%,#E2B65C)] text-[15px] font-semibold text-[#1C1406] hover:brightness-105">
+            Back to wallet
+          </button>
+          <p className="mt-3 text-center text-[11px] text-white/40">UPI handling and transaction ID are illustrative.</p>
+        </motion.div>
+      </GreenStage>
+    </motion.div>
+  )
+}
+
+const SPARKS = [['12%', '18%', 0], ['82%', '12%', 0.12], ['90%', '62%', 0.24], ['6%', '70%', 0.18], ['50%', '-2%', 0.3]]
+
+// Confetti needs the seal's position, so it starts once the seal has landed.
+function ConfettiWhenReady({ anchor }) {
+  const [go, setGo] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setGo(true), 850)
+    return () => clearTimeout(t)
+  }, [])
+  return go ? <Confetti originRef={anchor} /> : null
 }
