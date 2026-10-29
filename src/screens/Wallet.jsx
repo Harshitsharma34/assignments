@@ -8,6 +8,7 @@ import { NewUserIntro, ValueCard } from './wallet/BalanceHero.jsx'
 import CardRewards, { CardExplainer } from './wallet/CardRewards.jsx'
 import NextReward from './wallet/NextReward.jsx'
 import RatesExplainer from './wallet/RatesSheet.jsx'
+import ScoinCalculator from './wallet/ScoinCalculator.jsx'
 import Reveal from './wallet/Reveal.jsx'
 import PopularDeals from './wallet/PopularDeals.jsx'
 import WalletHero from './wallet/WalletHero.jsx'
@@ -60,6 +61,10 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
           <Reveal i={i++} className="mt-5">
             <Actions onSpend={() => navigate('spend')} onWithdraw={() => navigate('withdraw')} onEarn={() => navigate('earn')} />
           </Reveal>
+        )}
+
+        {!isEmpty && (
+          <Reveal i={i++} className="mt-6"><ScoinCalculator balance={balance} /></Reveal>
         )}
 
         {isEmpty && !isNew && (
