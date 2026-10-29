@@ -11,7 +11,7 @@ import Reveal from './Reveal.jsx'
 export const HERO = { top: 96, height: 176, coinX: 284, coinY: 164, coinWidth: 180 }
 const STAGE_HEIGHT = 844
 
-export default function WalletHero({ index, balance, savedRupees, intro, celebrateKey, idle, paused, onIntroDone }) {
+export default function WalletHero({ index, balance, savedRupees, onRates, intro, celebrateKey, idle, paused, onIntroDone }) {
   const timeline = useIntroTimeline()
   const slot = useRef(null)
   const [onScreen, setOnScreen] = useState(true)
@@ -34,11 +34,9 @@ export default function WalletHero({ index, balance, savedRupees, intro, celebra
   // The pedestal glow arrives with the coins, on the same playhead.
   const glow = useTransform(timeline, [T.form, T.end], [0, 1], { ease: easeOutCubic })
   const localY = HERO.coinY - HERO.top
-  // Room for the "Saved ₹X" line only when it shows.
-  const height = balance === 0 && savedRupees > 0 ? HERO.height : HERO.height - 24
 
   return (
-    <div ref={slot} className="relative" style={{ height }}>
+    <div ref={slot} className="relative" style={{ height: HERO.height }}>
       <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute h-[54px] w-[230px] rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(242,205,126,0.42),rgba(226,182,92,0.12)_45%,transparent_72%)]"
@@ -66,7 +64,7 @@ export default function WalletHero({ index, balance, savedRupees, intro, celebra
         />
       </div>
       <Reveal i={index}>
-        <HeroBalance balance={balance} savedRupees={savedRupees} />
+        <HeroBalance balance={balance} savedRupees={savedRupees} onRates={onRates} />
       </Reveal>
       {/* Hit area over the coins. The canvas itself never takes pointer events. */}
       <div

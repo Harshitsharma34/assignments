@@ -26,6 +26,11 @@ export default function App() {
   const timeline = useMotionValue(START[intro.mode])
   const [introDone, setIntroDone] = useState(false)
   const [route, setRoute] = useState('wallet')
+  const [routeParams, setRouteParams] = useState({})
+  const navigate = useCallback((to, params = {}) => {
+    setRouteParams(params)
+    setRoute(to)
+  }, [])
   const [toast, setToast] = useState(null)
   const scroller = useRef(null)
 
@@ -90,7 +95,7 @@ export default function App() {
                 paused={route !== 'wallet'}
                 idleMotion={!reduced}
                 onIntroDone={() => { setIntroDone(true); writeSeen() }}
-                navigate={setRoute}
+                navigate={navigate}
                 notify={notify}
               />
             </IntroTimeline.Provider>
@@ -106,7 +111,7 @@ export default function App() {
                 exit={{ x: '100%', transition: { duration: 0.26, ease: [0.4, 0, 1, 1] } }}
                 transition={{ type: 'spring', damping: 34, stiffness: 320 }}
               >
-                <NextBuild route={route} balance={wallet.balance} onBack={() => setRoute('wallet')} />
+                <NextBuild route={route} balance={wallet.balance} selected={routeParams.scoins} onBack={() => setRoute('wallet')} />
               </motion.div>
             )}
           </AnimatePresence>

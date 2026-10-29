@@ -9,7 +9,7 @@ const COPY = {
 }
 
 // Placeholder for screens that come in the next build step. Conversion shown is live.
-export default function NextBuild({ route, balance, onBack }) {
+export default function NextBuild({ route, balance, selected, onBack }) {
   const c = COPY[route]
   return (
     <div className="min-h-full px-5 pb-10 pt-11">
@@ -20,6 +20,12 @@ export default function NextBuild({ route, balance, onBack }) {
       <p className="mt-6 flex items-center gap-1.5 text-[14px] text-ink-2">
         <ScoinGlyph /> {formatScoins(balance)} Scoins · {formatRupees(inAppValue(balance))} on SalarySe · {formatRupees(bankValue(balance))} to bank
       </p>
+      {selected != null && (
+        <p className="mt-4 rounded-card border border-line bg-surface p-4 text-[15px] text-ink tnum">
+          Selected: {formatScoins(selected)} Scoins = {formatRupees(route === 'withdraw' ? bankValue(selected) : inAppValue(selected))}
+          {route === 'withdraw' ? ' to your bank' : ' on SalarySe'}
+        </p>
+      )}
       <div className="mt-6 rounded-card border border-dashed border-line p-5">
         <p className="label">{c.screen} · next build step</p>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-[14px] leading-relaxed text-ink-2">

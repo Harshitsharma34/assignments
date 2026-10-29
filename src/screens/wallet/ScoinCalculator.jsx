@@ -22,7 +22,7 @@ const snap = (v, max) => Math.min(max, Math.max(STEP, Math.round(v / STEP) * STE
 
 // "What would my Scoins become?" Pick where to use them and how many; the result shows the
 // rupee value at that rate, with the 2× in-app advantage stated plainly rather than as a warning.
-export default function ScoinCalculator({ balance }) {
+export default function ScoinCalculator({ balance, onSpend, onWithdraw }) {
   const max = Math.max(STEP, Math.floor(balance / STEP) * STEP)
   const [mode, setMode] = useState('spend')
   const [scoins, setScoins] = useState(() => snap(Math.min(1000, max), max))
@@ -32,6 +32,15 @@ export default function ScoinCalculator({ balance }) {
   const spend = mode === 'spend'
   const value = spend ? inAppValue(scoins) : bankValue(scoins)
   const activePick = PICKS.find((p) => snap(max * p.share, max) === scoins)?.id
+
+  // One announcement once the value settles, not one per drag step.
+  const [announcement, setAnnouncement] = useState('')
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setAnnouncement(`${formatScoins(scoins)} Scoins ${spend ? 'on SalarySe' : 'to your bank'} would become ${formatRupees(value)}`)
+    }, 600)
+    return () => clearTimeout(t)
+  }, [scoins, spend, value])
 
   return (
     <section aria-labelledby="calc-title" className="mx-5 overflow-hidden rounded-[22px] border border-line bg-surface">
@@ -83,7 +92,8 @@ export default function ScoinCalculator({ balance }) {
         </div>
       </div>
 
-      <div className="border-t border-line bg-sunken/60 px-4 py-5" aria-live="polite">
+      <div className="border-t border-line bg-sunken/60 px-4 py-5">
+        <p className="sr-only" role="status">{announcement}</p>
         <p className="text-[15px] leading-snug text-ink-2 tnum">
           {formatScoins(scoins)} Scoins {spend ? 'spent on SalarySe' : 'withdrawn to your bank'} would become
         </p>
@@ -96,9 +106,22 @@ export default function ScoinCalculator({ balance }) {
             <span className="text-[15px] font-normal text-ink-3">or {formatRupees(inAppValue(scoins))} on SalarySe</span>
           )}
         </p>
-        <p className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-[12px] text-ink-2">
-          <Repeat size={13} aria-hidden="true" /> {spend ? '5 Scoins = ₹1' : '10 Scoins = ₹1'}
-        </p>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <p className="inline-flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-[12px] text-ink-2">
+            <Repeat size={13} aria-hidden="true" /> {spend ? '5 Scoins = ₹1' : '10 Scoins = ₹1'}
+          </p>
+          {/* The answer leads straight to the action, carrying the chosen amount. */}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => (spend ? onSpend : onWithdraw)?.(scoins)}
+            className={`flex h-11 items-center gap-1.5 rounded-xl px-4 text-[15px] font-semibold tnum ${
+              spend ? 'bg-gold text-gold-ink hover:bg-gold-hi' : 'border border-ink/40 text-ink hover:bg-sunken-2'
+            }`}
+          >
+            {spend ? 'Spend' : 'Withdraw'} {formatRupees(value)}
+            <ChevronRight size={17} aria-hidden="true" />
+          </motion.button>
+        </div>
       </div>
     </section>
   )

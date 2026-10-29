@@ -4,7 +4,7 @@ import Sheet from '../components/Sheet.jsx'
 import { formatRupees, inAppValue } from '../lib/scoins.js'
 import Actions from './wallet/Actions.jsx'
 import Activity, { RecentActivity, TxDetail } from './wallet/Activity.jsx'
-import { NewUserIntro, ValueCard } from './wallet/BalanceHero.jsx'
+import { NewUserIntro } from './wallet/BalanceHero.jsx'
 import CardRewards, { CardExplainer } from './wallet/CardRewards.jsx'
 import NextReward from './wallet/NextReward.jsx'
 import RatesExplainer from './wallet/RatesSheet.jsx'
@@ -46,6 +46,7 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
           index={i++}
           balance={balance}
           savedRupees={savedRupees}
+          onRates={openRates}
           intro={intro}
           celebrateKey={state.celebrateKey}
           idle={idleMotion}
@@ -55,7 +56,6 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
 
         {isNew && <Reveal i={i++} className="mt-2"><NewUserIntro /></Reveal>}
 
-        <Reveal i={i++} className="mt-5"><ValueCard balance={balance} onRates={openRates} /></Reveal>
 
         {!isEmpty && (
           <Reveal i={i++} className="mt-5">
@@ -64,7 +64,7 @@ export default function Wallet({ wallet, intro, onIntroDone, paused, navigate, n
         )}
 
         {!isEmpty && (
-          <Reveal i={i++} className="mt-6"><ScoinCalculator balance={balance} /></Reveal>
+          <Reveal i={i++} className="mt-6"><ScoinCalculator balance={balance} onSpend={(scoins) => navigate('spend', { scoins })} onWithdraw={(scoins) => navigate('withdraw', { scoins })} /></Reveal>
         )}
 
         {isEmpty && !isNew && (
