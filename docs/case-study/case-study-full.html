@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Scoins Redesign Decisions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Gochi+Hand&display=swap" rel="stylesheet" />
+<style>
+  /* A4 landscape at 96 dpi. Light paper, dark phone screens, hand-written notes beside them. */
+  :root { --paper: #F7F6F2; --ink: #17171A; --ink2: #55575E; --note: #6C6C70; --gold: #B98A2F; --line: #E2E0DA; }
+  @page { size: 1123px 794px; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #DDD; font-family: 'Noto Sans', system-ui, sans-serif; color: var(--ink); }
+  .page { width: 1123px; height: 794px; background: var(--paper); position: relative; overflow: hidden; page-break-after: always; margin: 0 auto 24px; }
+  .head { position: absolute; left: 56px; top: 40px; right: 56px; display: flex; justify-content: space-between; align-items: baseline; }
+  .eyebrow { font-size: 12px; font-weight: 600; color: var(--gold); }
+  .title { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; margin: 4px 0 0; max-width: 760px; text-wrap: balance; }
+  .folio { font-size: 12px; color: var(--ink2); }
+  .phone { position: absolute; border-radius: 30px; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06); background: #0C0C0D; }
+  .phone img { display: block; width: 100%; }
+  .note { position: absolute; width: 250px; font-family: 'Gochi Hand', cursive; font-size: 19px; line-height: 1.15; color: var(--note); }
+  .note.l { text-align: right; }
+  svg.arrows { position: absolute; inset: 0; pointer-events: none; }
+  .body { position: absolute; left: 56px; right: 56px; top: 130px; bottom: 50px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  p, li { font-size: 14px; line-height: 1.55; color: var(--ink2); }
+  h3 { font-size: 15px; margin: 0 0 6px; color: var(--ink); }
+  ol, ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--ink); font-weight: 600; }
+  .caption { position: absolute; width: 210px; font-size: 12.5px; line-height: 1.45; color: var(--ink2); }
+  .caption b { display: block; color: var(--ink); font-size: 13.5px; margin-bottom: 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th { text-align: left; font-weight: 600; color: var(--ink); border-bottom: 1.5px solid var(--ink); padding: 6px 8px 6px 0; }
+  td { vertical-align: top; color: var(--ink2); border-bottom: 1px solid var(--line); padding: 6px 8px 6px 0; line-height: 1.4; }
+  td:first-child { color: var(--ink); font-weight: 500; width: 20%; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; color: var(--gold); border: 1px solid #E5D2A6; border-radius: 99px; padding: 0 6px; margin-left: 4px; }
+  .big { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin: 0; max-width: 520px; }
+  .rule { height: 1px; background: var(--line); margin: 18px 0; }
+  .lg li { font-size: 16px; line-height: 1.6; margin-bottom: 14px; }
+  .lg h3 { font-size: 18px; margin-bottom: 12px; }
+  .flows h3 { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1.5px solid var(--ink); }
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 0 9px; font-size: 13px; color: var(--ink2); }
+  .flow em { font-style: normal; font-weight: 600; color: var(--ink); background: #ECEAE3; border-radius: 6px; padding: 3px 8px; min-width: 76px; text-align: center; }
+  .flow i { font-style: normal; color: var(--gold); }
+</style>
+</head>
+<body>
+<div id="doc"></div>
+<script>
+// Each annotated page: a phone image (optionally a vertical crop of a long screen) and notes
+// pointing at coordinates in the screen's own 390-px-wide space.
+const S = (n) => `screens/${n}`
+const pages = [
+  { kind: 'cover' },
+  { kind: 'problem' },
+  { kind: 'principles' },
+  {
+    eyebrow: 'Wallet · top of screen', title: 'Users see what their Scoins are worth before anything else',
+    img: 'wallet-active-fold.png', y0: 0, y1: 844,
+    notes: [
+      ['l', 'Help is always one tap away: “how do Scoins work?” is answered from any state', 365, 70],
+      ['l', 'Answers “what is it worth?” at a glance: ₹300 to spend, not 1,500 points', 195, 258],
+      ['l', 'The cash-out value is never hidden, so spending in-app feels like a choice, not a trick', 195, 332],
+      ['r', 'Playful but out of the way: users can spin the coins, the balance is never covered', 230, 150],
+      ['r', 'Every key job is one tap away: spend, withdraw, earn or check history', 62, 405],
+      ['r', 'Users always know their next reward, what it pays and how close they are', 300, 520],
+    ],
+  },
+  {
+    eyebrow: 'Wallet · lower half', title: 'Every explanation ends in something users can do',
+    img: 'wallet-active.png', y0: 690, y1: 1700,
+    notes: [
+      ['l', 'Affordable deals come first; the rest say exactly how many Scoins are missing', 100, 790],
+      ['l', 'Exploring turns into doing: the chosen amount carries straight into Spend or Withdraw', 300, 1375],
+      ['r', 'The trade-off is shown, not argued: the same Scoins in ₹ in-app vs ₹ to bank', 270, 1330],
+      ['r', 'History reads like a bank statement: rupees first, savings shown as gains', 320, 1540],
+      ['l', 'The page follows intent: earn, spend, explore, then review what happened', 60, 1465],
+    ],
+  },
+  { kind: 'intro' },
+  { kind: 'states' },
+  {
+    eyebrow: 'Earn · ways to earn today', title: 'Users see what earns, how much, and the one step to take',
+    img: 'earn-active.png', y0: 0, y1: 980,
+    notes: [
+      ['l', 'Each way to earn is recognisable at a glance, so users scan instead of read', 70, 270],
+      ['r', 'Every card answers the same questions: what to do, what it pays in ₹, and the limits', 200, 250],
+      ['r', 'Progress shows only where there is a real target, so it always means something', 330, 340],
+      ['l', 'Only real product rules are stated; nothing promises a reward we can’t confirm', 110, 610],
+      ['r', 'One action per card, taking users straight to the payment that earns', 120, 455],
+    ],
+  },
+  {
+    eyebrow: 'Earn · proposed mechanics', title: 'New habits worth rewarding, clearly marked as proposals',
+    img: 'earn-active.png', y0: 940, y1: 2150,
+    notes: [
+      ['r', 'Campaign rewards show as pending until confirmed, so users never feel short-changed', 300, 1000],
+      ['l', 'Non-cardholders get one line about the card, so the wallet never feels like an ad', 120, 1240],
+      ['r', 'Proposed ideas are labelled, so users never mistake them for live offers', 330, 1440],
+      ['l', 'Rewards push good money habits: paying on time and on autopay, never borrowing more', 110, 1450],
+      ['r', 'Caps and one-time rewards keep the system fair and hard to game', 250, 1980],
+    ],
+  },
+  { kind: 'spend' },
+  { kind: 'withdraw' },
+  { kind: 'guardrails' },
+]
+
+const W = 1123, H = 794
+const doc = document.getElementById('doc')
+let folio = 0
+const head = (eyebrow, title) => `<div class="head"><div><div class="eyebrow">${eyebrow}</div><h1 class="title">${title}</h1></div><div class="folio">${String(++folio).padStart(2, '0')}</div></div>`
+
+function annotated(pg) {
+  const el = document.createElement('section')
+  el.className = 'page'
+  const cropH = pg.y1 - pg.y0
+  const maxH = 600, maxW = 330
+  const scale = Math.min(maxH / cropH, maxW / 390)
+  const pw = 390 * scale, ph = cropH * scale
+  const px = (W - pw) / 2, py = 150 + (maxH - ph) / 2
+  el.innerHTML = head(pg.eyebrow, pg.title) +
+    `<div class="phone" style="left:${px}px;top:${py}px;width:${pw}px;height:${ph}px"><img src="${S(pg.img)}" style="margin-top:${-pg.y0 * scale}px" /></div>`
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('class', 'arrows'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`)
+  const used = { l: [], r: [] }
+  pg.notes.forEach(([side, text, sx, sy]) => {
+    const tx = px + sx * scale, ty = py + (sy - pg.y0) * scale
+    let ny = Math.max(150, Math.min(H - 110, ty - 22))
+    for (const u of used[side]) if (Math.abs(u - ny) < 86) ny = u + 86
+    used[side].push(ny)
+    const nx = side === 'l' ? px - 330 : px + pw + 80
+    const n = document.createElement('div')
+    n.className = `note ${side}`; n.style.left = nx + 'px'; n.style.top = ny + 'px'; n.textContent = text
+    el.appendChild(n)
+    const ax = side === 'l' ? nx + 262 : nx - 12, ay = ny + 18
+    const mx = (ax + tx) / 2
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    path.setAttribute('d', `M${ax},${ay} C${mx},${ay} ${mx},${ty} ${tx},${ty}`)
+    path.setAttribute('fill', 'none'); path.setAttribute('stroke', '#8A8A8E'); path.setAttribute('stroke-width', '1.6'); path.setAttribute('stroke-linecap', 'round')
+    svg.appendChild(path)
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+    dot.setAttribute('cx', tx); dot.setAttribute('cy', ty); dot.setAttribute('r', '3.2'); dot.setAttribute('fill', '#B98A2F')
+    svg.appendChild(dot)
+  })
+  el.appendChild(svg)
+  return el
+}
+
+function strip(eyebrow, title, items, intro) {
+  const el = document.createElement('section'); el.className = 'page'
+  const n = items.length, gap = 26, w = Math.min(205, (W - 112 - gap * (n - 1)) / n), h = w * 844 / 390
+  const total = n * w + (n - 1) * gap, x0 = (W - total) / 2, y = 150
+  el.innerHTML = head(eyebrow, title) + items.map((it, i) => `
+    <div class="phone" style="left:${x0 + i * (w + gap)}px;top:${y}px;width:${w}px;height:${h}px;border-radius:22px"><img src="${S(it.img)}" /></div>
+    <div class="caption" style="left:${x0 + i * (w + gap)}px;top:${y + h + 14}px;width:${w}px"><b>${it.title}</b>${it.text}</div>`).join('') +
+    (intro ? `<p style="position:absolute;left:56px;right:56px;top:104px;margin:0">${intro}</p>` : '')
+  return el
+}
+
+function textPage(eyebrow, title, html) {
+  const el = document.createElement('section'); el.className = 'page'
+  el.innerHTML = head(eyebrow, title) + `<div class="body">${html}</div>`
+  return el
+}
+
+for (const pg of pages) {
+  if (pg.img) { doc.appendChild(annotated(pg)); continue }
+  if (pg.kind === 'cover') {
+    const el = document.createElement('section'); el.className = 'page'
+    el.innerHTML = `
+      <div style="position:absolute;left:64px;top:96px;width:470px">
+        <div class="eyebrow">SalarySe · Product design challenge</div>
+        <h1 class="big" style="margin-top:14px">Make Scoins feel like money</h1>
+        <p style="font-size:16px;margin-top:18px">Design decisions behind the Scoins wallet, the Earn experience and the redemption flows: what each screen says, and why it says it that way.</p>
+        <div class="rule"></div>
+        <p style="margin:0"><strong>The lever:</strong> 5 Scoins = ₹1 spent on SalarySe, 10 Scoins = ₹1 to bank. Spending in-app is worth 2×, and almost nobody knew.</p>
+        <p style="margin-top:10px"><strong>The answer:</strong> lead with rupees, make the better rate the default without hiding the other, and give every state a next step.</p>
+      </div>
+      ${['wallet-active-fold.png', 'earn-active.png', 'withdraw-6-success-confetti.png'].map((n, i) => `<div class="phone" style="left:${590 + i * 168}px;top:${110 + (i % 2) * 40}px;width:160px;height:346px;border-radius:20px"><img src="${S(n)}" /></div>`).join('')}
+      <div class="flows" style="position:absolute;left:64px;right:64px;top:545px">
+        <h3>Core flows: value within 3 taps</h3>
+        <div class="flow"><em>Spend</em> Wallet <i>→</i> a deal you can cover <i>→</i> review: you save ₹, Scoins used, balance after <i>→</i> confirm <i>→</i> voucher + balance left</div>
+        <div class="flow"><em>Withdraw</em> Wallet <i>→</i> amount in ₹ (in-app value shown) <i>→</i> UPI ID checked inline <i>→</i> swipe <i>→</i> OTP <i>→</i> receipt</div>
+        <div class="flow"><em>Earn</em> Wallet <i>→</i> next reward <i>→</i> pay via UPI <i>→</i> progress moves <i>→</i> reward lands with a toast</div>
+        <div class="flow"><em>Trust</em> Any history row <i>→</i> what it was, the rule that earned it, the running balance</div>
+      </div>
+      <p style="position:absolute;left:64px;bottom:40px;font-size:12px;margin:0">Interactive prototype: claude.ai/artifact/VrxVM3azJxau7ZQbx6ibTs · All earn amounts, deals and card figures are illustrative.</p>`
+    doc.appendChild(el); folio++; continue
+  }
+  if (pg.kind === 'problem') {
+    const el = textPage('Deliverable 1 · Problem analysis', 'Why Scoins feel useless today', `
+      <div class="cols" style="grid-template-columns: 1.05fr 1fr">
+        <div>
+          <p style="margin-top:0">A Scoin balance is a number with no meaning. The wallet never says what 1,500 Scoins are worth, offers no Spend, Withdraw or Earn action, and leaves a zero balance as a decorative coin over an empty list. The one fact that would change behaviour, that Scoins are worth 2× inside SalarySe, appears only in a cash-out popup with guilt copy, after the user has decided to leave.</p>
+          <h3 style="margin-top:14px">Problems</h3>
+          <ol>
+            <li><strong>Value is hidden.</strong> The balance shows as points with no rupee figure.</li>
+            <li><strong>Two rates, no comparison.</strong> Withdrawing costs half the value, and users only find out afterwards.</li>
+            <li><strong>Zero balance is a dead end.</strong> New users see “0” and no way to earn.</li>
+            <li><strong>Earning is invisible.</strong> No progress toward the next reward, so no reason to come back.</li>
+            <li><strong>Low trust.</strong> No receipts and no history explaining where Scoins came from or went.</li>
+          </ol>
+          <h3 style="margin-top:14px">What I fixed first</h3>
+          <ol>
+            <li><strong>Trust:</strong> every amount carries its unit and ₹ value; the ledger reconciles.</li>
+            <li><strong>Rupee-first value</strong> with the bank value beside it.</li>
+            <li><strong>A next step in every state.</strong></li>
+          </ol>
+        </div>
+        <div>
+          <div class="phone" style="position:relative;border-radius:14px;width:100%;"><img src="screens/before-current-design.webp" /></div>
+          <p style="font-size:12px;margin-top:8px">Before: the current wallet across its four states.</p>
+        </div>
+      </div>`)
+    doc.appendChild(el); continue
+  }
+  if (pg.kind === 'principles') {
+    doc.appendChild(textPage('Approach', 'Six principles behind every screen', `
+      <div class="cols lg" style="margin-top:20px">
+        <ol>
+          <li><strong>Lead with rupees.</strong> Users think in money, so the in-app ₹ value is always the headline.</li>
+          <li><strong>Show both rates, rank them.</strong> 5 = ₹1 leads; 10 = ₹1 is always visible and never guilt-framed.</li>
+          <li><strong>Every amount carries its unit.</strong> No bare numbers or fractional Scoins that could be misread as rupees.</li>
+        </ol>
+        <ol start="4">
+          <li><strong>Spending is saving.</strong> Redemptions read “Saved ₹50”, so using Scoins feels like a gain, not a loss.</li>
+          <li><strong>The balance always reconciles.</strong> Earned − spent − withdrawn = available; pending is kept separate.</li>
+          <li><strong>One next step per state.</strong> Zero, low or full balance, users always know what to do next.</li>
+        </ol>
+      </div>`)); continue
+  }
+  if (pg.kind === 'intro') {
+    doc.appendChild(strip('Wallet · entrance', 'A short entrance that ends on the balance', [
+      { img: 'intro-1-closeup.png', title: '0.0s · Close-up', text: 'Sets the tone: Scoins are something of value, not loyalty points.' },
+      { img: 'intro-2-edge.png', title: '0.7s · Turn', text: 'One continuous move, under 3 seconds, so it never delays the user.' },
+      { img: 'intro-3-formation.png', title: '1.9s · Formation', text: 'Returning users start here: a shorter version they won’t tire of.' },
+      { img: 'intro-4-landed.png', title: '3.0s · Wallet', text: 'Ends on the rupee balance. Skippable, and static with reduced motion.' },
+    ])); continue
+  }
+  if (pg.kind === 'states') {
+    doc.appendChild(strip('Wallet · states', 'Each state gets its own message and next step', [
+      { img: 'wallet-new-fold.png', title: 'New user', text: 'Explains what Scoins are worth and starts a first reward (0 of 5). No empty history.' },
+      { img: 'wallet-spent-fold.png', title: 'Spent everything', text: '“Saved ₹400 with Scoins so far” turns zero into proof of value, then points to the next reward.' },
+      { img: 'wallet-cardholder-fold.png', title: 'Cardholder', text: 'Balance split by source, with pending card points and when they become spendable.' },
+      { img: 'wallet-reward-landed.png', title: 'Reward lands', text: 'The coin turns, the balance counts up and a toast confirms “+10 Scoins · ₹2 to spend”.' },
+    ])); continue
+  }
+  if (pg.kind === 'spend') {
+    doc.appendChild(strip('Redemption · spend', 'Review exactly what it costs and saves, then celebrate', [
+      { img: 'spend-list.png', title: 'Choose', text: '“You can cover” first, “Almost there” second, each with the Scoins still needed.' },
+      { img: 'spend-review.png', title: 'Review', text: 'You save, Scoins used, the rate and the balance after. One button names the exact cost.' },
+      { img: 'spend-success.png', title: 'Success', text: 'The exact saving, the Scoins used and what is left, with the voucher or bill outcome.' },
+      { img: 'spend-not-enough.png', title: 'Not enough Scoins', text: 'Says exactly how many more are needed and offers a way to earn, not a dead button.' },
+    ])); continue
+  }
+  if (pg.kind === 'withdraw') {
+    doc.appendChild(strip('Redemption · withdraw', 'Cashing out stays simple, safe and fully informed', [
+      { img: 'withdraw-1-amount.png', title: 'Amount', text: 'Type or slide to an exact ₹ amount, and see what it would be worth if spent instead.' },
+      { img: 'withdraw-2-upi-check.png', title: 'UPI ID checked', text: 'The swipe stays locked until the UPI ID is valid, with the fix in plain words.' },
+      { img: 'withdraw-3-otp.png', title: 'OTP', text: 'A one-line summary shows exactly what is being confirmed before verifying.' },
+      { img: 'withdraw-5-processing.png', title: 'Processing', text: 'Amount and destination stay on screen, so users know nothing is lost while waiting.' },
+      { img: 'withdraw-7-success.png', title: 'Receipt', text: 'Amount, Scoins used, balance left and transaction ID, ready to share.' },
+    ])); continue
+  }
+  if (pg.kind === 'guardrails') {
+    doc.appendChild(textPage('Guardrails and next steps', 'Reward good money habits, never more borrowing', `
+      <div class="cols lg" style="margin-top:20px">
+        <div>
+          <h3>Guardrails</h3>
+          <ul>
+            <li>No mechanic rewards borrowing more or spending for its own sake.</li>
+            <li>Streaks reward paying on time, never paying more.</li>
+            <li>Caps stop gaming: the UPI bonus resets every 5 payments; recurring rewards cap at 3.</li>
+            <li>Withdrawing is always one tap away and never framed as a loss.</li>
+            <li>Every illustrative value is labelled, and the two rates never change.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>What I'd test first</h3>
+          <ol>
+            <li><strong>Five-second test:</strong> ask “What are your Scoins worth?” before and after. Success means most users answer in rupees.</li>
+            <li><strong>First redemption:</strong> deals ranked by what the balance covers vs a generic list.</li>
+            <li><strong>In-app share of Scoins:</strong> side-by-side rates vs today’s cash-out popup.</li>
+          </ol>
+        </div>
+      </div>`)); continue
+  }
+}
+window.__ready = true
+</script>
+</body>
+</html>
