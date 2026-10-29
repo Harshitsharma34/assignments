@@ -3,7 +3,8 @@ import { motion, useReducedMotion } from 'framer-motion'
 import Confetti from './Confetti.jsx'
 import ScoinGlyph from './ScoinGlyph.jsx'
 
-// The success seal: the 3D Scoin drops in and turns over twice, then a tick badge pops onto it. Rays turn slowly behind it, shockwaves and sparkles go out, then gold confetti.
+// The success seal: the 3D Scoin drops in and turns over twice, then keeps flipping between
+// the coin and a green tick face. Rays turn slowly behind it, shockwaves and sparkles go out, then gold confetti.
 export default function CoinSeal({ size = 200, className = '', rays = 'rgba(255,255,255,0.16)' }) {
   const seal = useRef(null)
   const reduce = useReducedMotion()
@@ -49,7 +50,7 @@ export default function CoinSeal({ size = 200, className = '', rays = 'rgba(255,
           <ScoinGlyph size={s} />
         </motion.span>
       ))}
-      {/* The 3D Scoin drops in and turns over twice; a tick badge then pops onto it. */}
+      {/* The 3D Scoin drops in and turns over twice, then keeps flipping: coin to tick and back. */}
       <motion.span
         aria-hidden="true"
         style={{ transformPerspective: 600 }}
@@ -58,39 +59,19 @@ export default function CoinSeal({ size = 200, className = '', rays = 'rgba(255,
         animate={{ y: 0, scale: [0.4, 1.12, 1], rotateY: 720, opacity: 1 }}
         transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1], opacity: { duration: 0.2, delay: 0.2 } }}
       >
-        <ScoinGlyph size={124} className="block" />
-        {/* One light sweep across the face, clipped to the coin. */}
-        {!reduce && (
-          <span className="absolute inset-0 overflow-hidden rounded-full">
-            <motion.span
-              className="absolute inset-y-0 w-10 -skew-x-12 bg-white/45 blur-[3px]"
-              initial={{ x: -110 }}
-              animate={{ x: 150 }}
-              transition={{ delay: 1.3, duration: 0.8, ease: 'easeInOut' }}
-            />
+        <span className="block h-full w-full [perspective:600px]">
+          <span className="flip-coin relative block h-full w-full [animation-delay:1.2s] [transform-style:preserve-3d]">
+            <span className="absolute inset-0 [backface-visibility:hidden]">
+              <ScoinGlyph size={124} className="block" />
+            </span>
+            {/* The tick face: a green seal with a gold rim, so it still reads as the same coin. */}
+            <span className="absolute inset-[3px] grid place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#3BE07F,#14B85A_55%,#0B7A3B)] text-white shadow-[inset_0_0_0_4px_rgba(242,205,126,0.85),inset_0_-8px_16px_rgba(0,0,0,0.25)] [backface-visibility:hidden] [transform:rotateY(180deg)]">
+              <svg width="58" height="58" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
           </span>
-        )}
-      </motion.span>
-      <motion.span
-        aria-hidden="true"
-        className="absolute grid h-11 w-11 place-items-center rounded-full bg-[#14B85A] text-white shadow-[0_0_0_4px_rgba(0,0,0,0.35)]"
-        style={{ left: '50%', top: '50%', marginLeft: 26, marginTop: 26 }}
-        initial={reduce ? false : { scale: 0 }}
-        animate={{ scale: [0, 1.25, 1] }}
-        transition={{ delay: 0.95, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <motion.path
-            d="M5 12.5l4.5 4.5L19 7.5"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            initial={reduce ? false : { pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ delay: 1.1, duration: 0.35, ease: 'easeOut' }}
-          />
-        </svg>
+        </span>
       </motion.span>
       {/* Sparkles that twinkle once around the seal. */}
       {!reduce && SPARKS.map(([x, y, d], i) => (
